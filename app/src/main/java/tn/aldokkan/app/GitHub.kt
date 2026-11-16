@@ -3,6 +3,8 @@ package tn.aldokkan.app
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import org.json.JSONArray
 import java.io.File
 import java.io.IOException
@@ -148,6 +150,37 @@ object GitHub {
             if (dest.exists()) dest.delete()
             if (!tmp.renameTo(dest)) throw IOException("Impossible d'enregistrer le fichier")
             return@withContext
+        }
+    }
+
+    /** Les captures d'écran de l'app : les images du dossier docs/captures de son dépôt. */
+    suspend fun captures(app: AppEntry): List<String> = withContext(Dispatchers.IO) {
+        try {
+            val c = connect("$API/repos/${app.repo}/contents/docs/captures", null, "application/vnd.github+json")
+            if (c.responseCode != 200) return@withContext emptyList()
+            val arr = JSONArray(c.inputStream.bufferedReader().use { it.readText() })
+            (0 until arr.length()).map { arr.getJSONObject(it) }
+                .filter { it.optString("type") == "file" && it.optString("name").matches(Regex(".*\\.(png|jpe?g|webp)$", RegexOption.IGNORE_CASE)) }
+                .sortedBy { it.optString("name") }
+                .mapNotNull { it.optString("download_url").takeIf { u -> u.isNotBlank() } }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun bitmap(url: String): Bitmap? = withContext(Dispatchers.IO) {
+        try {
+            val c = URL(url).openConnection() as HttpURLConnection
+            c.connectTimeout = 15_000
+            c.readTimeout = 30_000
+            val bytes = c.inputStream.use { it.readBytes() }
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+            var sample = 1
+            while (bounds.outHeight / sample > 1400) sample *= 2
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
+        } catch (e: Exception) {
+            null
         }
     }
 }

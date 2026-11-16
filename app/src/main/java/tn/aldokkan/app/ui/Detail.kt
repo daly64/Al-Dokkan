@@ -18,6 +18,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,6 +105,8 @@ fun DetailScreen(
             else -> {}
         }
 
+        Screenshots(app)
+
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("À propos de cette app", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Dk.Esp)
             Text(app.description, fontSize = 15.sp, lineHeight = 22.sp, color = Dk.Esp)
@@ -131,5 +136,27 @@ private fun Stat(label: String, value: String, modifier: Modifier) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Dk.Esp, maxLines = 1, textAlign = TextAlign.Center)
         Text(label, fontSize = 12.sp, color = Dk.Muted)
+    }
+}
+
+/** Les captures d'écran de l'app, en bande qui défile. Rien ne s'affiche s'il n'y en a pas. */
+@Composable
+private fun Screenshots(app: AppEntry) {
+    val urls by androidx.compose.runtime.produceState(emptyList<String>(), app.id) { value = tn.aldokkan.app.GitHub.captures(app) }
+    if (urls.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("Captures d'écran", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Dk.Esp)
+        androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(urls.size) { i ->
+                val bmp by androidx.compose.runtime.produceState<android.graphics.Bitmap?>(null, urls[i]) { value = tn.aldokkan.app.GitHub.bitmap(urls[i]) }
+                val b = bmp
+                Box(Modifier.height(320.dp).clip(RoundedCornerShape(16.dp)).background(Dk.Sand)) {
+                    if (b != null) androidx.compose.foundation.Image(
+                        b.asImageBitmap(), "Capture ${i + 1} de ${app.name}",
+                        Modifier.height(320.dp), contentScale = androidx.compose.ui.layout.ContentScale.FillHeight,
+                    ) else Box(Modifier.height(320.dp).width(150.dp))
+                }
+            }
+        }
     }
 }
