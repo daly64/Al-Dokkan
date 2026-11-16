@@ -107,7 +107,7 @@ object Catalog {
             description = "Affiche le menu du salon sur l'écran.",
             category = "Salon de thé", repo = "daly64/zicafe_menu_app", pkg = "com.example.zicafe_menu_app",
             bg = sand, fg = esp, glyph = Glyphs.cup,
-            platform = Platform.Tv, iconImg = R.drawable.ic_app_menutv,
+            platform = Platform.Tv,
         ),
         AppEntry(
             id = "fichiers", name = "Gestion de fichiers", tagline = "Fichiers du téléphone",
@@ -122,6 +122,32 @@ object Catalog {
             category = "Salon de thé", repo = "daly64/commandes-android", pkg = "fr.salon.commandes",
             bg = Color(0xFF2E6B5E), fg = cream, glyph = Glyphs.cup,
             iconBg = R.drawable.ic_app_commandes_bg, iconFg = R.drawable.ic_app_commandes_fg,
+        ),
+        AppEntry(
+            id = "metrix", name = "Metrix", tagline = "Périmètre et aire",
+            description = "Calcule le périmètre et l\'aire de tes figures, en centimètres ou en mètres.",
+            category = "Perso", repo = "daly64/Metrix", pkg = "com.example.metrix",
+            bg = sand, fg = esp, glyph = Glyphs.scale,
+            iconImg = R.drawable.ic_app_metrix,
+        ),
+        AppEntry(
+            id = "taskslist", name = "Tasks List", tagline = "Liste de tâches",
+            description = "Note tes tâches et coche-les au fur et à mesure.",
+            category = "Perso", repo = "daly64/TasksList", pkg = "com.alphadaly.taskslist",
+            bg = sage, fg = esp, glyph = Glyphs.calc,
+            iconImg = R.drawable.ic_app_taskslist,
+        ),
+        AppEntry(
+            id = "receplio", name = "Receplio", tagline = "Recettes",
+            description = "Garde tes recettes sous forme de cartes.",
+            category = "Perso", repo = "daly64/Receplio", pkg = "com.example.receplio",
+            bg = saffron, fg = esp, glyph = Glyphs.cup,
+        ),
+        AppEntry(
+            id = "calctraitement", name = "Calculateur de traitement", tagline = "Sirop, boîtes, ampoules",
+            description = "Calcule les quantités d\'un traitement : sirop, boîtes et ampoules.",
+            category = "Perso", repo = "daly64/Calculateur_de_traitement", pkg = "com.example.calculateurdetraitement",
+            bg = sage, fg = esp, glyph = Glyphs.calc,
         ),
         AppEntry(
             id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",

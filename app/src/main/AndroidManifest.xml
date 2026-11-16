@@ -11,6 +11,10 @@
         <package android:name="tn.aldokkan.tv" />
         <package android:name="io.github.daly64.gestionfichiers" />
         <package android:name="fr.salon.commandes" />
+        <package android:name="com.example.metrix" />
+        <package android:name="com.alphadaly.taskslist" />
+        <package android:name="com.example.receplio" />
+        <package android:name="com.example.calculateurdetraitement" />
         <package android:name="tn.alwaraqa.app" />
         <package android:name="tn.mizan.app" />
         <package android:name="tn.costo" />
