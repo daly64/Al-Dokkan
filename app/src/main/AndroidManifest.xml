@@ -9,6 +9,8 @@
     <queries>
         <package android:name="tn.aldokkan.app" />
         <package android:name="tn.aldokkan.tv" />
+        <package android:name="io.github.daly64.gestionfichiers" />
+        <package android:name="fr.salon.commandes" />
         <package android:name="tn.alwaraqa.app" />
         <package android:name="tn.mizan.app" />
         <package android:name="tn.costo" />

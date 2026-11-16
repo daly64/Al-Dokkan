@@ -110,6 +110,20 @@ object Catalog {
             platform = Platform.Tv, iconImg = R.drawable.ic_app_menutv,
         ),
         AppEntry(
+            id = "fichiers", name = "Gestion de fichiers", tagline = "Fichiers du téléphone",
+            description = "Parcours, range et gère les fichiers de ton téléphone.",
+            category = "Perso", repo = "daly64/gestion-fichiers", pkg = "io.github.daly64.gestionfichiers",
+            bg = Color(0xFF2D5BFF), fg = cream, glyph = Glyphs.box,
+            iconBg = R.drawable.ic_app_fichiers_bg, iconFg = R.drawable.ic_app_fichiers_fg,
+        ),
+        AppEntry(
+            id = "commandes", name = "Commandes", tagline = "Prise de commande",
+            description = "Prends les commandes du salon depuis ton téléphone.",
+            category = "Salon de thé", repo = "daly64/commandes-android", pkg = "fr.salon.commandes",
+            bg = Color(0xFF2E6B5E), fg = cream, glyph = Glyphs.cup,
+            iconBg = R.drawable.ic_app_commandes_bg, iconFg = R.drawable.ic_app_commandes_fg,
+        ),
+        AppEntry(
             id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",
             description = "Cette boutique elle-même : elle se met à jour toute seule par-dessus la version actuelle.",
             category = "Perso", repo = "daly64/Al-Dokkan", pkg = "tn.aldokkan.app",

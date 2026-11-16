@@ -61,10 +61,13 @@ object GitHub {
                         if (r.optBoolean("draft")) continue
                         val assets = r.optJSONArray("assets") ?: continue
                         var pick = -1
+                        var pickBad = false
                         for (j in 0 until assets.length()) {
                             val n = assets.getJSONObject(j).optString("name")
                             if (!n.endsWith(".apk", ignoreCase = true)) continue
-                            if (pick == -1) pick = j
+                            // On évite les fichiers de test ou non signés quand une vraie version existe.
+                            val bad = n.contains("test", true) || n.contains("non-sign", true) || n.contains("unsigned", true)
+                            if (pick == -1 || (!bad && pickBad)) { pick = j; pickBad = bad }
                             if (app.apkHint != null && n.contains(app.apkHint, ignoreCase = true)) { pick = j; break }
                         }
                         if (pick == -1) continue
