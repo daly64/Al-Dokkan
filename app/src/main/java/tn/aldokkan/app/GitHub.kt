@@ -84,18 +84,18 @@ object GitHub {
                     }
                     Remote.NoRelease("Pas encore de version publiée")
                 }
-                401 -> Remote.Failed("Jeton GitHub refusé : vérifie-le dans Réglages")
-                403, 429 -> Remote.Failed("GitHub a refusé la demande (limite atteinte ?). Réessaie plus tard")
+                401 -> Remote.Failed("Jeton d'accès refusé : vérifie-le dans Réglages")
+                403, 429 -> Remote.Failed("Le serveur a refusé la demande (limite atteinte ?). Réessaie plus tard")
                 404 -> Remote.Failed(
-                    if (token.isBlank()) "Dépôt privé : ajoute ton jeton GitHub dans Réglages"
-                    else "Dépôt introuvable : le jeton n'y donne pas accès"
+                    if (token.isBlank()) "App privée : ajoute ton jeton d'accès dans Réglages"
+                    else "App introuvable : le jeton n'y donne pas accès"
                 )
-                else -> Remote.Failed("Erreur GitHub ($code)")
+                else -> Remote.Failed("Erreur du serveur ($code)")
             }
         } catch (e: IOException) {
             Remote.Failed("Pas de connexion")
         } catch (e: Exception) {
-            Remote.Failed("Réponse GitHub illisible")
+            Remote.Failed("Réponse illisible")
         }
     }
 
@@ -124,7 +124,7 @@ object GitHub {
             }
             if (code != 200) {
                 c.disconnect()
-                throw IOException(if (code == 404 || code == 401) "Accès refusé au fichier : vérifie ton jeton" else "Téléchargement refusé ($code)")
+                throw IOException(if (code == 404 || code == 401) "Accès refusé au fichier : vérifie ton jeton d'accès" else "Téléchargement refusé ($code)")
             }
             val total = c.contentLengthLong.takeIf { it > 0 } ?: release.assetSize
             dest.parentFile?.mkdirs()

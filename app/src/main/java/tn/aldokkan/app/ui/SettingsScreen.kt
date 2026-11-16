@@ -44,15 +44,15 @@ fun SettingsScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> 
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Réglages", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, color = Dk.Esp)
-        Label("GITHUB")
+        Label("ACCÈS AUX APPS")
         Text(
-            "Tes dépôts sont privés : crée un jeton GitHub en lecture seule (contenu des dépôts) et colle-le ici. Il reste sur ce téléphone.",
+            "Tes apps sont privées : colle ici ton jeton d'accès en lecture seule. Il reste sur cet appareil.",
             fontSize = 14.sp, color = Dk.Muted, lineHeight = 20.sp,
         )
         OutlinedTextField(
             value = token, onValueChange = { token = it; saved = false },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Jeton GitHub") },
+            label = { Text("Jeton d'accès") },
             singleLine = true,
             visualTransformation = if (show) VisualTransformation.None else PasswordVisualTransformation(),
             shape = RoundedCornerShape(16.dp),

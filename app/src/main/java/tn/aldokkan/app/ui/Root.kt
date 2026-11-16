@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tn.aldokkan.app.AppEntry
+import tn.aldokkan.app.BuildConfig
 import tn.aldokkan.app.AppStatus
 import tn.aldokkan.app.Catalog
 import tn.aldokkan.app.Installer
@@ -45,9 +46,10 @@ fun DokkanRoot(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> Unit
     // Premier lancement : bienvenue, puis splash. Ensuite : splash, puis la boutique.
     var stage by rememberSaveable { mutableStateOf(if (prefs.onboarded) "splash" else "welcome") }
     when (stage) {
-        "welcome" -> WelcomeScreen(onDone = { prefs.onboarded = true; stage = "splash" })
+        "welcome" -> if (BuildConfig.IS_TV) TvWelcome(onDone = { prefs.onboarded = true; stage = "splash" })
+        else WelcomeScreen(onDone = { prefs.onboarded = true; stage = "splash" })
         "splash" -> SplashScreen(onDone = { stage = "main" })
-        else -> MainScreen(vm, prefs, onFullscreen)
+        else -> if (BuildConfig.IS_TV) TvStore(vm, prefs) else MainScreen(vm, prefs, onFullscreen)
     }
 }
 
@@ -89,6 +91,12 @@ private fun MainScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean)
         if (selected == null) BottomBar(tab, updateCount) { tab = it }
     }
 
+    StoreDialogs(vm, ui)
+}
+
+@Composable
+fun StoreDialogs(vm: StoreViewModel, ui: tn.aldokkan.app.UiState) {
+    val ctx = LocalContext.current
     ui.message?.let { msg ->
         AlertDialog(
             onDismissRequest = { vm.dismissMessage() },

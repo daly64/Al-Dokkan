@@ -59,7 +59,6 @@ fun DetailScreen(
             AppIcon(app, 80.dp)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(app.name, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp, color = Dk.Esp)
-                Text(app.repo.substringBefore('/'), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Dk.Terra)
                 Text(app.tagline, fontSize = 14.sp, color = Dk.Muted)
             }
         }
@@ -68,7 +67,7 @@ fun DetailScreen(
             Stat("Taille", release?.let { formatSize(it.assetSize) } ?: "—", Modifier.weight(1f))
             Stat("Version", release?.tag?.removePrefix("v")?.take(10) ?: "—", Modifier.weight(1f))
             Stat("Publiée", release?.let { formatDate(it.publishedAt) } ?: "—", Modifier.weight(1f))
-            Stat("Source", "GitHub", Modifier.weight(1f))
+            Stat("Pour", app.platform.label, Modifier.weight(1f))
         }
 
         if (progress != null) {
@@ -99,7 +98,7 @@ fun DetailScreen(
 
         when (remote) {
             is Remote.Failed -> InfoNote(remote.message)
-            is Remote.NoRelease -> InfoNote("Cette app n'a pas encore de fichier APK publié sur GitHub. Dès qu'une version est publiée, elle apparaîtra ici.")
+            is Remote.NoRelease -> InfoNote("Cette app n'a pas encore de fichier APK publié. Dès qu'une version est publiée, elle apparaîtra ici.")
             else -> {}
         }
 
@@ -124,7 +123,6 @@ fun DetailScreen(
             Text("Installée : version ${installed.versionName}", fontSize = 14.sp, color = Dk.Muted)
         }
         InfoNote("Une mise à jour s'installe par-dessus la version actuelle. Tes données sont conservées.")
-        Text("Source : GitHub · ${app.repo}", fontSize = 14.sp, color = Dk.Muted)
     }
 }
 

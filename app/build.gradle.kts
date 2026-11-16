@@ -20,6 +20,20 @@ android {
         versionName = "1.0.$dokkanVersionCode"
     }
 
+    // Deux versions : « mobile » (téléphone) et « tv » (téléviseur, télécommande).
+    flavorDimensions += "device"
+    productFlavors {
+        create("mobile") {
+            dimension = "device"
+            buildConfigField("boolean", "IS_TV", "false")
+        }
+        create("tv") {
+            dimension = "device"
+            applicationId = "tn.aldokkan.tv"
+            buildConfigField("boolean", "IS_TV", "true")
+        }
+    }
+
     // Clé fixe gardée dans le dépôt : toutes les versions ont la même signature,
     // donc une nouvelle version s'installe par-dessus l'ancienne, sans perdre les données.
     signingConfigs {
@@ -54,6 +68,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

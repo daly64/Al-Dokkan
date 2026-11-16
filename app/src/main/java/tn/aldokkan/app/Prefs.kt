@@ -2,7 +2,7 @@ package tn.aldokkan.app
 
 import android.content.Context
 
-/** Petits réglages gardés sur le téléphone. Rien ne part ailleurs que vers GitHub. */
+/** Petits réglages gardés sur le téléphone. Rien ne quitte l'appareil, à part les demandes de téléchargement. */
 class Prefs(ctx: Context) {
     private val sp = ctx.applicationContext.getSharedPreferences("dokkan", Context.MODE_PRIVATE)
 
@@ -19,7 +19,7 @@ class Prefs(ctx: Context) {
         set(v) = sp.edit().putBoolean("fullscreen", v).apply()
 
     var wifiOnly: Boolean
-        get() = sp.getBoolean("wifiOnly", true)
+        get() = sp.getBoolean("wifiOnly", false)
         set(v) = sp.edit().putBoolean("wifiOnly", v).apply()
 
     /** Empreinte de la version installée depuis la boutique (identifiant du fichier + date). */

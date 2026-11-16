@@ -73,7 +73,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         val pm = getApplication<Application>().packageManager
         val map = HashMap<String, InstalledInfo>()
         val stamps = HashMap<String, String>()
-        for (a in Catalog.apps) {
+        for (a in Catalog.all) {
             val info = runCatching { pm.getPackageInfo(a.pkg, 0) }.getOrNull() ?: continue
             map[a.pkg] = InstalledInfo(info.versionName ?: "", info.lastUpdateTime)
             prefs.stamp(a.pkg)?.let { stamps[a.pkg] = it }
@@ -82,7 +82,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshAll() {
-        for (a in Catalog.apps) refresh(a)
+        for (a in Catalog.all) refresh(a)
     }
 
     private fun refresh(a: AppEntry) {
