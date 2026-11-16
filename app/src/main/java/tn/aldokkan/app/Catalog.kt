@@ -49,7 +49,15 @@ object Catalog {
     /** Les apps affichées : celles de la plateforme choisie (Mobile ou TV). */
     var platform by mutableStateOf(if (BuildConfig.IS_TV) Platform.Tv else Platform.Mobile)
 
-    val apps: List<AppEntry> get() = all.filter { it.platform == platform }
+    /** Identifiants des apps abouties : celles qui ont une version publiée. */
+    private var published by mutableStateOf(setOf<String>())
+
+    fun setPublished(id: String, ok: Boolean) {
+        published = if (ok) published + id else published - id
+    }
+
+    /** Seules les apps abouties de la plateforme choisie sont affichées. */
+    val apps: List<AppEntry> get() = all.filter { it.platform == platform && it.id in published }
 
     val all = listOf(
         AppEntry(

@@ -10,10 +10,6 @@ class Prefs(ctx: Context) {
         get() = sp.getBoolean("onboarded", false)
         set(v) = sp.edit().putBoolean("onboarded", v).apply()
 
-    var token: String
-        get() = sp.getString("token", "") ?: ""
-        set(v) = sp.edit().putString("token", v.trim()).apply()
-
     var fullscreen: Boolean
         get() = sp.getBoolean("fullscreen", true)
         set(v) = sp.edit().putBoolean("fullscreen", v).apply()

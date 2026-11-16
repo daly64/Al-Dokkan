@@ -87,7 +87,7 @@ fun WelcomeScreen(onDone: () -> Unit) {
 
 @Composable
 private fun TilesArt() {
-    val apps = Catalog.apps.take(8)
+    val apps = Catalog.all.take(8)
     Column(Modifier.width(288.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         repeat(3) { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -112,7 +112,7 @@ private fun UpdateArt() {
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            AppIcon(Catalog.apps[0], 56.dp)
+            AppIcon(Catalog.all[0], 56.dp)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Box(Modifier.height(14.dp).width(120.dp).clip(CircleShape).background(Dk.Esp))
                 Box(Modifier.height(10.dp).width(80.dp).clip(CircleShape).background(Dk.Line))

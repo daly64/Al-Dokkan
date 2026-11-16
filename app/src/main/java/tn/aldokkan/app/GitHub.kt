@@ -35,7 +35,7 @@ sealed class Remote {
 object GitHub {
     private const val API = "https://api.github.com"
 
-    private fun connect(url: String, token: String?, accept: String): HttpURLConnection {
+    private fun connect(url: String, auth: String?, accept: String): HttpURLConnection {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 15_000
         c.readTimeout = 30_000
@@ -43,16 +43,16 @@ object GitHub {
         c.setRequestProperty("Accept", accept)
         c.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
         c.setRequestProperty("User-Agent", "Al-Dokkan")
-        if (!token.isNullOrBlank()) c.setRequestProperty("Authorization", "Bearer $token")
+        if (!auth.isNullOrBlank()) c.setRequestProperty("Authorization", "Bearer $auth")
         return c
     }
 
     private fun time(s: String?): Long =
         runCatching { Instant.parse(s).toEpochMilli() }.getOrDefault(0L)
 
-    suspend fun latest(app: AppEntry, token: String): Remote = withContext(Dispatchers.IO) {
+    suspend fun latest(app: AppEntry): Remote = withContext(Dispatchers.IO) {
         try {
-            val c = connect("$API/repos/${app.repo}/releases?per_page=10", token, "application/vnd.github+json")
+            val c = connect("$API/repos/${app.repo}/releases?per_page=10", null, "application/vnd.github+json")
             when (val code = c.responseCode) {
                 200 -> {
                     val arr = JSONArray(c.inputStream.bufferedReader().use { it.readText() })
@@ -84,12 +84,8 @@ object GitHub {
                     }
                     Remote.NoRelease("Pas encore de version publiée")
                 }
-                401 -> Remote.Failed("Jeton d'accès refusé : vérifie-le dans Réglages")
-                403, 429 -> Remote.Failed("Le serveur a refusé la demande (limite atteinte ?). Réessaie plus tard")
-                404 -> Remote.Failed(
-                    if (token.isBlank()) "App privée : ajoute ton jeton d'accès dans Réglages"
-                    else "App introuvable : le jeton n'y donne pas accès"
-                )
+                401, 403, 404 -> Remote.NoRelease("Pas encore disponible")
+                429 -> Remote.Failed("Le serveur a refusé la demande (limite atteinte ?). Réessaie plus tard")
                 else -> Remote.Failed("Erreur du serveur ($code)")
             }
         } catch (e: IOException) {
@@ -103,12 +99,11 @@ object GitHub {
     suspend fun download(
         app: AppEntry,
         release: Release,
-        token: String,
         dest: File,
         onProgress: (Long, Long) -> Unit,
     ) = withContext(Dispatchers.IO) {
         var url = "$API/repos/${app.repo}/releases/assets/${release.assetId}"
-        var auth: String? = token
+        var auth: String? = null
         var accept = "application/octet-stream"
         var hops = 0
         while (true) {
@@ -124,7 +119,7 @@ object GitHub {
             }
             if (code != 200) {
                 c.disconnect()
-                throw IOException(if (code == 404 || code == 401) "Accès refusé au fichier : vérifie ton jeton d'accès" else "Téléchargement refusé ($code)")
+                throw IOException(if (code == 404 || code == 401) "Fichier inaccessible" else "Téléchargement refusé ($code)")
             }
             val total = c.contentLengthLong.takeIf { it > 0 } ?: release.assetSize
             dest.parentFile?.mkdirs()

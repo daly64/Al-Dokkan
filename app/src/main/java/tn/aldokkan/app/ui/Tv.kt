@@ -103,7 +103,6 @@ fun TvWelcome(onDone: () -> Unit) {
 fun TvStore(vm: StoreViewModel, prefs: Prefs) {
     val ctx = LocalContext.current
     val ui by vm.state.collectAsState()
-    var showSettings by remember { mutableStateOf(false) }
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
 
@@ -122,11 +121,6 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
                     Box(Modifier.padding(horizontal = 26.dp).height(56.dp), contentAlignment = Alignment.Center) {
                         Text("Tout mettre à jour ($updates)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Dk.Terra)
                     }
-                }
-            }
-            Focusable(Modifier.height(56.dp), 28, onClick = { showSettings = true }) {
-                Box(Modifier.padding(horizontal = 26.dp).height(56.dp), contentAlignment = Alignment.Center) {
-                    Text("Réglages", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Dk.Esp)
                 }
             }
         }
@@ -153,34 +147,6 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
                 )
             }
         }
-    }
-
-    if (showSettings) {
-        var token by remember { mutableStateOf(prefs.token) }
-        AlertDialog(
-            onDismissRequest = { showSettings = false },
-            confirmButton = {
-                TextButton({ vm.saveToken(token); showSettings = false }) { Text("Enregistrer", color = Dk.Terra, fontWeight = FontWeight.Bold, fontSize = 18.sp) }
-            },
-            dismissButton = { TextButton({ showSettings = false }) { Text("Fermer", color = Dk.Muted, fontSize = 18.sp) } },
-            title = { Text("Accès aux apps", fontWeight = FontWeight.Bold, color = Dk.Esp) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Colle ici le jeton d'accès en lecture seule si tes apps sont privées.", fontSize = 16.sp, color = Dk.Muted)
-                    OutlinedTextField(
-                        value = token, onValueChange = { token = it },
-                        modifier = Modifier.fillMaxWidth(), singleLine = true,
-                        label = { Text("Jeton d'accès") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Dk.Terra, unfocusedBorderColor = Dk.Line, cursorColor = Dk.Terra,
-                            focusedLabelColor = Dk.Terra, focusedTextColor = Dk.Esp, unfocusedTextColor = Dk.Esp,
-                        ),
-                    )
-                }
-            },
-            containerColor = Dk.White,
-        )
     }
 
     StoreDialogs(vm, ui)
