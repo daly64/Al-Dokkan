@@ -23,11 +23,15 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Compiler l'APK
+      - name: Compiler les APK
         run: |
-          gradle :app:assembleMobileDebug :app:assembleTvDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
-          cp app/build/outputs/apk/mobile/debug/app-mobile-debug.apk al-dokkan.apk
-          cp app/build/outputs/apk/tv/debug/app-tv-debug.apk al-dokkan-tv.apk
+          gradle :app:assembleAdminMobileDebug :app:assembleAdminTvDebug :app:assembleClientMobileDebug :app:assembleClientTvDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
+          # Admin : noms inchangés (les installations actuelles continuent de se mettre à jour).
+          cp app/build/outputs/apk/adminMobile/debug/app-admin-mobile-debug.apk al-dokkan.apk
+          cp app/build/outputs/apk/adminTv/debug/app-admin-tv-debug.apk al-dokkan-tv.apk
+          # Clients
+          cp app/build/outputs/apk/clientMobile/debug/app-client-mobile-debug.apk al-dokkan-clients.apk
+          cp app/build/outputs/apk/clientTv/debug/app-client-tv-debug.apk al-dokkan-clients-tv.apk
 
       - uses: actions/upload-artifact@v4
         with:
@@ -35,6 +39,8 @@ jobs:
           path: |
             al-dokkan.apk
             al-dokkan-tv.apk
+            al-dokkan-clients.apk
+            al-dokkan-clients-tv.apk
 
       - name: Publier la version
         if: github.ref == 'refs/heads/main'
@@ -46,3 +52,5 @@ jobs:
           files: |
             al-dokkan.apk
             al-dokkan-tv.apk
+            al-dokkan-clients.apk
+            al-dokkan-clients-tv.apk

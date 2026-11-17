@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tn.aldokkan.app.BuildConfig
 import tn.aldokkan.app.Prefs
 import tn.aldokkan.app.StoreViewModel
 
@@ -37,6 +38,7 @@ fun SettingsScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> 
     val ctx = LocalContext.current
     var fullscreen by remember { mutableStateOf(prefs.fullscreen) }
     var wifiOnly by remember { mutableStateOf(prefs.wifiOnly) }
+    var adminKey by remember { mutableStateOf(prefs.adminKey) }
     val version = remember { runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: "" }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -45,13 +47,27 @@ fun SettingsScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> 
         SwitchRow("Wi-Fi uniquement", "Ne pas télécharger en données mobiles", wifiOnly) { wifiOnly = it; prefs.wifiOnly = it }
         HorizontalDivider(color = Dk.Line)
 
+        if (BuildConfig.IS_ADMIN) {
+            Label("ADMINISTRATION")
+            Text("Clé d'administration : elle permet de publier la liste des apps pour les clients. Elle reste sur ce téléphone.", fontSize = 14.sp, color = Dk.Muted)
+            OutlinedTextField(
+                value = adminKey, onValueChange = { adminKey = it; prefs.adminKey = it },
+                label = { Text("Clé d'administration") }, singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Dk.Terra, focusedLabelColor = Dk.Terra, cursorColor = Dk.Terra),
+            )
+            HorizontalDivider(color = Dk.Line)
+        }
+
         Label("AFFICHAGE")
         SwitchRow("Plein écran automatique", "Masquer les barres du système", fullscreen) { fullscreen = it; prefs.fullscreen = it; onFullscreen(it) }
         HorizontalDivider(color = Dk.Line)
 
         Label("À PROPOS")
         Column(Modifier.height(64.dp), verticalArrangement = Arrangement.Center) {
-            Text("Al Dokkan", fontSize = 17.sp, fontWeight = FontWeight.Medium, color = Dk.Esp)
+            Text(if (BuildConfig.IS_ADMIN) "Al Dokkan Admin" else "Al Dokkan", fontSize = 17.sp, fontWeight = FontWeight.Medium, color = Dk.Esp)
             Text("Version $version", fontSize = 14.sp, color = Dk.Muted)
         }
     }

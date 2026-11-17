@@ -60,7 +60,8 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         refreshInstalled()
-        refreshAll()
+        Catalog.clientIds = prefs.clientIds
+        viewModelScope.launch { loadClientIds(); refreshAll() }
         viewModelScope.launch {
             InstallEvents.flow.collect {
                 state.update { s -> s.copy(installing = s.installing - it.pkg) }
@@ -82,7 +83,43 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshAll() {
-        for (a in Catalog.all) refresh(a)
+        for (a in Catalog.offeredAll) refresh(a)
+    }
+
+    /** Récupère la liste des apps choisies pour les clients (le dernier choix connu est gardé hors connexion). */
+    private suspend fun loadClientIds() {
+        val r = Backend.clientIds()
+        r.value?.let {
+            Catalog.clientIds = it
+            prefs.clientIds = it
+        }
+    }
+
+    /** Au retour dans l'app : les clients reprennent le dernier choix de l'admin et vérifient les nouvelles apps. */
+    fun reloadClientIds() {
+        viewModelScope.launch {
+            loadClientIds()
+            for (a in Catalog.offeredAll) if (state.value.remote[a.id] == null) refresh(a)
+        }
+    }
+
+    /** Admin : publie pour les clients la liste d'apps choisie. */
+    fun publishClientIds(ids: Set<String>) {
+        val key = prefs.adminKey
+        if (key.isBlank()) {
+            state.update { it.copy(message = "Entre d'abord la clé d'administration dans Réglages.") }
+            return
+        }
+        viewModelScope.launch {
+            val err = Backend.publish(ids, key)
+            if (err == null) {
+                Catalog.clientIds = ids
+                prefs.clientIds = ids
+                state.update { it.copy(message = "Liste publiée : les clients verront ${ids.size} app(s).") }
+            } else {
+                state.update { it.copy(message = err) }
+            }
+        }
     }
 
     private fun refresh(a: AppEntry) {

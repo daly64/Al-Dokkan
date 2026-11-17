@@ -113,7 +113,7 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             Logo(64.dp)
             Column(Modifier.weight(1f)) {
-                Text("Al Dokkan TV", fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Dk.Esp)
+                Text(if (tn.aldokkan.app.BuildConfig.IS_ADMIN) "Al Dokkan Admin TV" else "Al Dokkan TV", fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Dk.Esp)
                 Text("Apps pour la TV", fontSize = 18.sp, color = Dk.Muted)
             }
             if (updates > 0) {

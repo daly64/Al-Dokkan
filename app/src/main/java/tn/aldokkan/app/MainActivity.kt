@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         vm.refreshInstalled()
+        if (!BuildConfig.IS_ADMIN) vm.reloadClientIds()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

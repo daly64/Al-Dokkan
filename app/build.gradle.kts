@@ -20,9 +20,22 @@ android {
         versionName = "1.0.$dokkanVersionCode"
     }
 
-    // Deux versions : « mobile » (téléphone) et « tv » (téléviseur, télécommande).
-    flavorDimensions += "device"
+    // Deux dimensions :
+    //  - « role »   : admin (gère la boutique) ou client (boutique simple pour les clients) ;
+    //  - « device » : mobile (téléphone) ou tv (téléviseur, télécommande).
+    // Identifiants : admin mobile = tn.aldokkan.app, admin TV = tn.aldokkan.tv (inchangés, donc les
+    // installations actuelles se mettent à jour), clients = les mêmes avec le suffixe « .client ».
+    flavorDimensions += listOf("role", "device")
     productFlavors {
+        create("admin") {
+            dimension = "role"
+            buildConfigField("boolean", "IS_ADMIN", "true")
+        }
+        create("client") {
+            dimension = "role"
+            applicationIdSuffix = ".client"
+            buildConfigField("boolean", "IS_ADMIN", "false")
+        }
         create("mobile") {
             dimension = "device"
             buildConfigField("boolean", "IS_TV", "false")

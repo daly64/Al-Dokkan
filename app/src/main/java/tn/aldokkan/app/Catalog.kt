@@ -25,6 +25,8 @@ data class AppEntry(
     val iconBg: Int? = null,
     val iconFg: Int? = null,
     val iconImg: Int? = null,
+    /** Visible seulement dans la version Admin (jamais proposée aux clients). */
+    val adminOnly: Boolean = false,
 )
 
 object Glyphs {
@@ -56,15 +58,57 @@ object Catalog {
         published = if (ok) published + id else published - id
     }
 
-    /** Seules les apps abouties de la plateforme choisie sont affichées. */
-    val apps: List<AppEntry> get() = all.filter { it.id in published }
+    /** Identifiants des apps choisies pour les clients (null = pas encore connu). */
+    var clientIds by mutableStateOf<Set<String>?>(null)
+
+    /** Cette app est-elle proposée dans la version actuelle ? Admin : tout. Clients : seulement le choix de l'admin. */
+    fun offered(a: AppEntry): Boolean = when {
+        BuildConfig.IS_ADMIN -> true
+        a.adminOnly -> false
+        a.id == SELF_ID -> true
+        else -> clientIds?.contains(a.id) == true
+    }
+
+    /** Les apps à vérifier sur GitHub. */
+    val offeredAll: List<AppEntry> get() = all.filter { offered(it) }
+
+    /**
+     * Les apps affichées. Admin : toutes, même celles sans version publiée (affichées dans « Pas encore disponibles »).
+     * Clients : seulement les apps choisies par l'admin et abouties (avec une version publiée).
+     */
+    val apps: List<AppEntry>
+        get() = all.filter { offered(it) && (BuildConfig.IS_ADMIN || it.id in published) }
+
+    /** Apps que l'admin peut choisir pour les clients (ni la boutique elle-même, ni les apps réservées à l'admin). */
+    val choosable: List<AppEntry> get() = all.filter { !it.adminOnly && it.id != SELF_ID }
+
+    const val SELF_ID = "self"
+    private val tv = BuildConfig.IS_TV
 
     val all = listOf(
+        // La boutique elle-même (admin ou clients, mobile ou TV) : elle se met à jour comme les autres apps.
         AppEntry(
-            id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",
-            description = "La boutique : elle installe tes apps et les met à jour par-dessus la version actuelle.",
-            category = "Perso", repo = "daly64/Al-Dokkan", pkg = "tn.aldokkan.app",
-            bg = Color(0xFFB8441F), fg = cream, glyph = Glyphs.store, apkHint = "al-dokkan.apk",
+            id = SELF_ID,
+            name = if (BuildConfig.IS_ADMIN) "Al Dokkan Admin" else "Al Dokkan",
+            tagline = if (BuildConfig.IS_ADMIN) "Administration de la boutique" else "Ma boutique d'apps",
+            description = "La boutique : elle installe les apps et les met à jour par-dessus la version actuelle.",
+            category = "Perso", repo = "daly64/Al-Dokkan", pkg = BuildConfig.APPLICATION_ID,
+            bg = if (BuildConfig.IS_ADMIN) esp else Color(0xFFB8441F), fg = cream, glyph = Glyphs.store,
+            apkHint = when {
+                BuildConfig.IS_ADMIN && tv -> "al-dokkan-tv.apk"
+                BuildConfig.IS_ADMIN -> "al-dokkan.apk"
+                tv -> "al-dokkan-clients-tv.apk"
+                else -> "al-dokkan-clients.apk"
+            },
+        ),
+        // La version Clients, à installer sur les appareils des clients (visible seulement dans l'admin).
+        AppEntry(
+            id = "clients", name = "Al Dokkan Clients", tagline = "La boutique pour les clients",
+            description = "La version de la boutique pour les clients : elle ne montre que les apps que tu as choisies dans l'admin.",
+            category = "Perso", repo = "daly64/Al-Dokkan", pkg = "${BuildConfig.APPLICATION_ID}.client",
+            bg = Color(0xFFB8441F), fg = cream, glyph = Glyphs.store,
+            apkHint = if (tv) "al-dokkan-clients-tv.apk" else "al-dokkan-clients.apk",
+            adminOnly = true,
         ),
         AppEntry(
             id = "alwaraqa", name = "Al Waraqa", tagline = "Lecteur PDF",
