@@ -61,6 +61,12 @@ object Catalog {
 
     val all = listOf(
         AppEntry(
+            id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",
+            description = "La boutique : elle installe tes apps et les met à jour par-dessus la version actuelle.",
+            category = "Perso", repo = "daly64/Al-Dokkan", pkg = "tn.aldokkan.app",
+            bg = Color(0xFFB8441F), fg = cream, glyph = Glyphs.store, apkHint = "al-dokkan.apk",
+        ),
+        AppEntry(
             id = "fichiers", name = "Gestion de fichiers", tagline = "Fichiers du téléphone",
             description = "Parcours, range et gère les fichiers de ton téléphone.",
             category = "Perso", repo = "daly64/gestion-fichiers", pkg = "io.github.daly64.gestionfichiers",
