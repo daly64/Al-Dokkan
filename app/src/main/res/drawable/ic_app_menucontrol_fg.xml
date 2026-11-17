@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Professional Menu Board Background (Safe Zone) -->
+    <path
+        android:fillColor="#E3F2FD"
+        android:pathData="M24,28h60c4.4,0 8,3.6 8,8v36c0,4.4 -3.6,8 -8,8h-60c-4.4,0 -8,-3.6 -8,-8v-36c0,-4.4 3.6,-8 8,-8z" />
+
+    <!-- Main Accent (Blue) -->
+    <path
+        android:fillColor="#0056D2"
+        android:pathData="M24,28h60c4.4,0 8,3.6 8,8v6h-76v-6c0,-4.4 3.6,-8 8,-8z" />
+
+    <!-- Content Lines -->
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M32,48h30v4h-30zM32,58h44v4h-44zM32,68h36v4h-36z" />
+
+    <!-- Checkbox Representation (Bottom Right) -->
+    <path
+        android:fillColor="#0056D2"
+        android:pathData="M72,62h12v12h-12z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,68l2,2l4,-4"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

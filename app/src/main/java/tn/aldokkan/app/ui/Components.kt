@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,10 +69,23 @@ fun PathIcon(
 
 @Composable
 fun AppIcon(app: AppEntry, size: Dp) {
-    Box(
-        Modifier.size(size).clip(RoundedCornerShape(size * 0.23f)).background(app.bg),
-        contentAlignment = Alignment.Center,
-    ) { PathIcon(app.glyph, app.fg, size) }
+    val shape = RoundedCornerShape(size * 0.23f)
+    when {
+        app.id == "aldokkan" -> Box(Modifier.size(size).clip(shape)) { Logo(size) }
+        app.iconImg != null -> androidx.compose.foundation.Image(
+            androidx.compose.ui.res.painterResource(app.iconImg), app.name,
+            Modifier.size(size).clip(shape), contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+        )
+        app.iconBg != null && app.iconFg != null -> Box(Modifier.size(size).clip(shape)) {
+            androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(app.iconBg), null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+            // Premier plan d'une icône adaptative : 108 dp dessinés, 72 dp visibles.
+            androidx.compose.foundation.Image(
+                androidx.compose.ui.res.painterResource(app.iconFg), app.name,
+                Modifier.fillMaxSize().graphicsLayer(scaleX = 1.5f, scaleY = 1.5f),
+            )
+        }
+        else -> Box(Modifier.size(size).clip(shape).background(app.bg), contentAlignment = Alignment.Center) { PathIcon(app.glyph, app.fg, size) }
+    }
 }
 
 /** Le logo d'Al Dokkan : une échoppe avec auvent rayé et porte en arche. */

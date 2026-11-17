@@ -15,6 +15,9 @@ data class AppEntry(
     val fg: Color,
     val glyph: List<String>,
     val apkHint: String? = null,
+    val iconBg: Int? = null,
+    val iconFg: Int? = null,
+    val iconImg: Int? = null,
 )
 
 object Glyphs {
@@ -42,42 +45,42 @@ object Catalog {
             description = "Suis les entrées, les sorties et les niveaux de stock du salon, sans connexion ni compte.",
             category = "Gestion", repo = "daly64/Stockup", pkg = "com.example.stockup",
             bg = sage, fg = esp, glyph = Glyphs.box,
+            iconBg = R.drawable.ic_app_stockup_bg, iconFg = R.drawable.ic_app_stockup_fg,
         ),
         AppEntry(
             id = "alwaraqa", name = "Al Waraqa", tagline = "Lecteur PDF",
             description = "Lis tes PDF avec des pages qui se tournent comme dans un livre.",
             category = "Lecture", repo = "daly64/Al-Waraqa", pkg = "tn.alwaraqa.app",
             bg = saffron, fg = esp, glyph = Glyphs.book,
+            iconBg = R.drawable.ic_app_alwaraqa_bg, iconFg = R.drawable.ic_app_alwaraqa_fg,
         ),
         AppEntry(
             id = "mizan", name = "Mizan", tagline = "Suivi de dépenses",
             description = "Suis tes dépenses personnelles, 100 % en local, sans accès internet.",
             category = "Perso", repo = "daly64/Mizan", pkg = "tn.mizan.app",
             bg = esp2, fg = cream, glyph = Glyphs.scale,
+            iconBg = R.drawable.ic_app_mizan_bg, iconFg = R.drawable.ic_app_mizan_fg,
         ),
         AppEntry(
             id = "costo", name = "Costo", tagline = "Coût de revient",
             description = "Calcule le coût de revient des boissons : ingrédients, recettes par portion, pertes, marge visée et prix conseillé.",
             category = "Gestion", repo = "daly64/Costo", pkg = "tn.costo",
             bg = Color(0xFF9CC8A4), fg = esp, glyph = Glyphs.calc,
-        ),
-        AppEntry(
-            id = "zikawif", name = "Zikawif", tagline = "Wi-Fi du salon",
-            description = "Pilote le routeur du salon et donne des accès Wi-Fi aux clients par QR code.",
-            category = "Salon de thé", repo = "daly64/zikawif", pkg = "com.zikawif.app",
-            bg = Color(0xFFE0734C), fg = esp, glyph = Glyphs.wifi,
+            iconBg = R.drawable.ic_app_costo_bg, iconFg = R.drawable.ic_app_costo_fg,
         ),
         AppEntry(
             id = "menucontrol", name = "Menu Control", tagline = "Gestion du menu",
             description = "Gère depuis ton téléphone le menu affiché à l'écran du salon.",
             category = "Salon de thé", repo = "daly64/menu-board-controller", pkg = "com.example.menu_board_controller",
             bg = esp2, fg = saffron, glyph = Glyphs.tv,
+            iconBg = R.drawable.ic_app_menucontrol_bg, iconFg = R.drawable.ic_app_menucontrol_fg,
         ),
         AppEntry(
-            id = "menuboard", name = "Menu TV", tagline = "Affichage du menu",
+            id = "menuboard", name = "Zicafe Menu", tagline = "Affichage du menu",
             description = "Affiche le menu du salon sur l'écran.",
             category = "Salon de thé", repo = "daly64/zicafe_menu_app", pkg = "com.example.zicafe_menu_app",
             bg = sand, fg = esp, glyph = Glyphs.cup,
+            iconImg = R.drawable.ic_app_menutv,
         ),
         AppEntry(
             id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",
