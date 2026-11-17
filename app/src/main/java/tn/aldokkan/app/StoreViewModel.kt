@@ -73,7 +73,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         val pm = getApplication<Application>().packageManager
         val map = HashMap<String, InstalledInfo>()
         val stamps = HashMap<String, String>()
-        for (a in Catalog.apps) {
+        for (a in Catalog.all) {
             val info = runCatching { pm.getPackageInfo(a.pkg, 0) }.getOrNull() ?: continue
             map[a.pkg] = InstalledInfo(info.versionName ?: "", info.lastUpdateTime)
             prefs.stamp(a.pkg)?.let { stamps[a.pkg] = it }
@@ -82,20 +82,16 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshAll() {
-        for (a in Catalog.apps) refresh(a)
+        for (a in Catalog.all) refresh(a)
     }
 
     private fun refresh(a: AppEntry) {
         state.update { it.copy(remote = it.remote + (a.id to Remote.Loading)) }
         viewModelScope.launch {
-            val r = GitHub.latest(a, prefs.token)
+            val r = GitHub.latest(a)
             state.update { it.copy(remote = it.remote + (a.id to r)) }
+            Catalog.setPublished(a.id, r is Remote.Ok)
         }
-    }
-
-    fun saveToken(token: String) {
-        prefs.token = token
-        refreshAll()
     }
 
     fun dismissMessage() = state.update { it.copy(message = null) }
@@ -131,7 +127,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 state.update { it.copy(progress = it.progress + (app.pkg to Progress(0, release.assetSize))) }
                 val file = File(ctx.cacheDir, "apks/${app.pkg}.apk")
-                GitHub.download(app, release, prefs.token, file) { done, total ->
+                GitHub.download(app, release, file) { done, total ->
                     state.update { it.copy(progress = it.progress + (app.pkg to Progress(done, total))) }
                 }
                 state.update { it.copy(progress = it.progress - app.pkg, installing = it.installing + app.pkg) }

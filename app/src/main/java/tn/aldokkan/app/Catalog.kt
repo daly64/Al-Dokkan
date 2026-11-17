@@ -1,8 +1,13 @@
 package tn.aldokkan.app
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
-/** Une app de la boutique : où la trouver sur GitHub et comment la reconnaître sur le téléphone. */
+enum class Platform(val label: String) { Mobile("Mobile"), Tv("TV") }
+
+/** Une app de la boutique : où trouver ses versions et comment la reconnaître sur l'appareil. */
 data class AppEntry(
     val id: String,
     val name: String,
@@ -15,6 +20,8 @@ data class AppEntry(
     val fg: Color,
     val glyph: List<String>,
     val apkHint: String? = null,
+    val platform: Platform = Platform.Mobile,
+    /** Vraie icône de l'app : fond + premier plan (adaptive icon) ou une image toute faite. */
     val iconBg: Int? = null,
     val iconFg: Int? = null,
     val iconImg: Int? = null,
@@ -39,58 +46,63 @@ object Catalog {
     private val sage = Color(0xFF58A97D)
     private val sand = Color(0xFFF6E7CF)
 
-    val apps = listOf(
+    /** Les apps affichées : celles de la plateforme choisie (Mobile ou TV). */
+    var platform by mutableStateOf(if (BuildConfig.IS_TV) Platform.Tv else Platform.Mobile)
+
+    /** Identifiants des apps abouties : celles qui ont une version publiée. */
+    private var published by mutableStateOf(setOf<String>())
+
+    fun setPublished(id: String, ok: Boolean) {
+        published = if (ok) published + id else published - id
+    }
+
+    /** Seules les apps abouties de la plateforme choisie sont affichées. */
+    val apps: List<AppEntry> get() = all.filter { it.id in published }
+
+    val all = listOf(
         AppEntry(
-            id = "stockup", name = "Stockup", tagline = "Gestion de stock",
-            description = "Suis les entrées, les sorties et les niveaux de stock du salon, sans connexion ni compte.",
-            category = "Gestion", repo = "daly64/Stockup", pkg = "com.example.stockup",
-            bg = sage, fg = esp, glyph = Glyphs.box,
-            iconBg = R.drawable.ic_app_stockup_bg, iconFg = R.drawable.ic_app_stockup_fg,
+            id = "fichiers", name = "Gestion de fichiers", tagline = "Fichiers du téléphone",
+            description = "Parcours, range et gère les fichiers de ton téléphone.",
+            category = "Perso", repo = "daly64/gestion-fichiers", pkg = "io.github.daly64.gestionfichiers",
+            bg = Color(0xFF2D5BFF), fg = cream, glyph = Glyphs.box,
+            iconBg = R.drawable.ic_app_fichiers_bg, iconFg = R.drawable.ic_app_fichiers_fg,
         ),
         AppEntry(
-            id = "alwaraqa", name = "Al Waraqa", tagline = "Lecteur PDF",
-            description = "Lis tes PDF avec des pages qui se tournent comme dans un livre.",
-            category = "Lecture", repo = "daly64/Al-Waraqa", pkg = "tn.alwaraqa.app",
-            bg = saffron, fg = esp, glyph = Glyphs.book,
-            iconBg = R.drawable.ic_app_alwaraqa_bg, iconFg = R.drawable.ic_app_alwaraqa_fg,
+            id = "commandes", name = "Commandes", tagline = "Prise de commande",
+            description = "Prends les commandes du salon depuis ton téléphone.",
+            category = "Salon de thé", repo = "daly64/commandes-android", pkg = "fr.salon.commandes",
+            bg = Color(0xFF2E6B5E), fg = cream, glyph = Glyphs.cup,
+            iconBg = R.drawable.ic_app_commandes_bg, iconFg = R.drawable.ic_app_commandes_fg,
         ),
         AppEntry(
-            id = "mizan", name = "Mizan", tagline = "Suivi de dépenses",
-            description = "Suis tes dépenses personnelles, 100 % en local, sans accès internet.",
-            category = "Perso", repo = "daly64/Mizan", pkg = "tn.mizan.app",
-            bg = esp2, fg = cream, glyph = Glyphs.scale,
-            iconBg = R.drawable.ic_app_mizan_bg, iconFg = R.drawable.ic_app_mizan_fg,
+            id = "metrix", name = "Metrix", tagline = "Périmètre et aire",
+            description = "Calcule le périmètre et l\'aire de tes figures, en centimètres ou en mètres.",
+            category = "Perso", repo = "daly64/Metrix", pkg = "com.example.metrix",
+            bg = sand, fg = esp, glyph = Glyphs.scale,
+            iconImg = R.drawable.ic_app_metrix,
         ),
         AppEntry(
-            id = "costo", name = "Costo", tagline = "Coût de revient",
-            description = "Calcule le coût de revient des boissons : ingrédients, recettes par portion, pertes, marge visée et prix conseillé.",
-            category = "Gestion", repo = "daly64/Costo", pkg = "tn.costo",
-            bg = Color(0xFF9CC8A4), fg = esp, glyph = Glyphs.calc,
-            iconBg = R.drawable.ic_app_costo_bg, iconFg = R.drawable.ic_app_costo_fg,
+            id = "taskslist", name = "Tasks List", tagline = "Liste de tâches",
+            description = "Note tes tâches et coche-les au fur et à mesure.",
+            category = "Perso", repo = "daly64/TasksList", pkg = "com.alphadaly.taskslist",
+            bg = sage, fg = esp, glyph = Glyphs.calc,
+            iconImg = R.drawable.ic_app_taskslist,
         ),
         AppEntry(
-            id = "menucontrol", name = "Menu Control", tagline = "Gestion du menu",
-            description = "Gère depuis ton téléphone le menu affiché à l'écran du salon.",
-            category = "Salon de thé", repo = "daly64/menu-board-controller", pkg = "com.example.menu_board_controller",
-            bg = esp2, fg = saffron, glyph = Glyphs.tv,
-            iconBg = R.drawable.ic_app_menucontrol_bg, iconFg = R.drawable.ic_app_menucontrol_fg,
+            id = "receplio", name = "Receplio", tagline = "Recettes",
+            description = "Garde tes recettes sous forme de cartes.",
+            category = "Perso", repo = "daly64/Receplio", pkg = "com.example.receplio",
+            bg = saffron, fg = esp, glyph = Glyphs.cup,
         ),
         AppEntry(
-            id = "menuboard", name = "Zicafe Menu", tagline = "Affichage du menu",
-            description = "Affiche le menu du salon sur l'écran.",
-            category = "Salon de thé", repo = "daly64/zicafe_menu_app", pkg = "com.example.zicafe_menu_app",
-            bg = sand, fg = esp, glyph = Glyphs.cup,
-            iconImg = R.drawable.ic_app_menutv,
-        ),
-        AppEntry(
-            id = "aldokkan", name = "Al Dokkan", tagline = "Ma boutique d'apps",
-            description = "Cette boutique elle-même : elle se met à jour toute seule par-dessus la version actuelle.",
-            category = "Perso", repo = "daly64/Al-Dokkan", pkg = "tn.aldokkan.app",
-            bg = Color(0xFFB8441F), fg = cream, glyph = Glyphs.store,
+            id = "calctraitement", name = "Calculateur de traitement", tagline = "Sirop, boîtes, ampoules",
+            description = "Calcule les quantités d\'un traitement : sirop, boîtes et ampoules.",
+            category = "Perso", repo = "daly64/Calculateur_de_traitement", pkg = "com.example.calculateurdetraitement",
+            bg = sage, fg = esp, glyph = Glyphs.calc,
         ),
     )
 
     val categories = listOf("Gestion", "Lecture", "Salon de thé", "Perso")
 
-    fun byId(id: String?): AppEntry? = apps.firstOrNull { it.id == id }
+    fun byId(id: String?): AppEntry? = all.firstOrNull { it.id == id }
 }

@@ -8,9 +8,17 @@
     <!-- Les apps que la boutique sait détecter (installées ou non) -->
     <queries>
         <package android:name="tn.aldokkan.app" />
+        <package android:name="tn.aldokkan.tv" />
+        <package android:name="io.github.daly64.gestionfichiers" />
+        <package android:name="fr.salon.commandes" />
+        <package android:name="com.example.metrix" />
+        <package android:name="com.alphadaly.taskslist" />
+        <package android:name="com.example.receplio" />
+        <package android:name="com.example.calculateurdetraitement" />
         <package android:name="tn.alwaraqa.app" />
         <package android:name="tn.mizan.app" />
         <package android:name="tn.costo" />
+        <package android:name="com.zikawif.app" />
         <package android:name="com.example.stockup" />
         <package android:name="com.example.menu_board_controller" />
         <package android:name="com.example.zicafe_menu_app" />

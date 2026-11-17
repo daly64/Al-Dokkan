@@ -3,6 +3,8 @@ package tn.aldokkan.app
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import org.json.JSONArray
 import java.io.File
 import java.io.IOException
@@ -35,7 +37,7 @@ sealed class Remote {
 object GitHub {
     private const val API = "https://api.github.com"
 
-    private fun connect(url: String, token: String?, accept: String): HttpURLConnection {
+    private fun connect(url: String, auth: String?, accept: String): HttpURLConnection {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 15_000
         c.readTimeout = 30_000
@@ -43,16 +45,16 @@ object GitHub {
         c.setRequestProperty("Accept", accept)
         c.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
         c.setRequestProperty("User-Agent", "Al-Dokkan")
-        if (!token.isNullOrBlank()) c.setRequestProperty("Authorization", "Bearer $token")
+        if (!auth.isNullOrBlank()) c.setRequestProperty("Authorization", "Bearer $auth")
         return c
     }
 
     private fun time(s: String?): Long =
         runCatching { Instant.parse(s).toEpochMilli() }.getOrDefault(0L)
 
-    suspend fun latest(app: AppEntry, token: String): Remote = withContext(Dispatchers.IO) {
+    suspend fun latest(app: AppEntry): Remote = withContext(Dispatchers.IO) {
         try {
-            val c = connect("$API/repos/${app.repo}/releases?per_page=10", token, "application/vnd.github+json")
+            val c = connect("$API/repos/${app.repo}/releases?per_page=10", null, "application/vnd.github+json")
             when (val code = c.responseCode) {
                 200 -> {
                     val arr = JSONArray(c.inputStream.bufferedReader().use { it.readText() })
@@ -61,10 +63,13 @@ object GitHub {
                         if (r.optBoolean("draft")) continue
                         val assets = r.optJSONArray("assets") ?: continue
                         var pick = -1
+                        var pickBad = false
                         for (j in 0 until assets.length()) {
                             val n = assets.getJSONObject(j).optString("name")
                             if (!n.endsWith(".apk", ignoreCase = true)) continue
-                            if (pick == -1) pick = j
+                            // On évite les fichiers de test ou non signés quand une vraie version existe.
+                            val bad = n.contains("test", true) || n.contains("non-sign", true) || n.contains("unsigned", true)
+                            if (pick == -1 || (!bad && pickBad)) { pick = j; pickBad = bad }
                             if (app.apkHint != null && n.contains(app.apkHint, ignoreCase = true)) { pick = j; break }
                         }
                         if (pick == -1) continue
@@ -84,18 +89,14 @@ object GitHub {
                     }
                     Remote.NoRelease("Pas encore de version publiée")
                 }
-                401 -> Remote.Failed("Jeton GitHub refusé : vérifie-le dans Réglages")
-                403, 429 -> Remote.Failed("GitHub a refusé la demande (limite atteinte ?). Réessaie plus tard")
-                404 -> Remote.Failed(
-                    if (token.isBlank()) "Dépôt privé : ajoute ton jeton GitHub dans Réglages"
-                    else "Dépôt introuvable : le jeton n'y donne pas accès"
-                )
-                else -> Remote.Failed("Erreur GitHub ($code)")
+                401, 403, 404 -> Remote.NoRelease("Pas encore disponible")
+                429 -> Remote.Failed("Le serveur a refusé la demande (limite atteinte ?). Réessaie plus tard")
+                else -> Remote.Failed("Erreur du serveur ($code)")
             }
         } catch (e: IOException) {
             Remote.Failed("Pas de connexion")
         } catch (e: Exception) {
-            Remote.Failed("Réponse GitHub illisible")
+            Remote.Failed("Réponse illisible")
         }
     }
 
@@ -103,12 +104,11 @@ object GitHub {
     suspend fun download(
         app: AppEntry,
         release: Release,
-        token: String,
         dest: File,
         onProgress: (Long, Long) -> Unit,
     ) = withContext(Dispatchers.IO) {
         var url = "$API/repos/${app.repo}/releases/assets/${release.assetId}"
-        var auth: String? = token
+        var auth: String? = null
         var accept = "application/octet-stream"
         var hops = 0
         while (true) {
@@ -124,7 +124,7 @@ object GitHub {
             }
             if (code != 200) {
                 c.disconnect()
-                throw IOException(if (code == 404 || code == 401) "Accès refusé au fichier : vérifie ton jeton" else "Téléchargement refusé ($code)")
+                throw IOException(if (code == 404 || code == 401) "Fichier inaccessible" else "Téléchargement refusé ($code)")
             }
             val total = c.contentLengthLong.takeIf { it > 0 } ?: release.assetSize
             dest.parentFile?.mkdirs()
@@ -150,6 +150,37 @@ object GitHub {
             if (dest.exists()) dest.delete()
             if (!tmp.renameTo(dest)) throw IOException("Impossible d'enregistrer le fichier")
             return@withContext
+        }
+    }
+
+    /** Les captures d'écran de l'app : les images du dossier docs/captures de son dépôt. */
+    suspend fun captures(app: AppEntry): List<String> = withContext(Dispatchers.IO) {
+        try {
+            val c = connect("$API/repos/${app.repo}/contents/docs/captures", null, "application/vnd.github+json")
+            if (c.responseCode != 200) return@withContext emptyList()
+            val arr = JSONArray(c.inputStream.bufferedReader().use { it.readText() })
+            (0 until arr.length()).map { arr.getJSONObject(it) }
+                .filter { it.optString("type") == "file" && it.optString("name").matches(Regex(".*\\.(png|jpe?g|webp)$", RegexOption.IGNORE_CASE)) }
+                .sortedBy { it.optString("name") }
+                .mapNotNull { it.optString("download_url").takeIf { u -> u.isNotBlank() } }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun bitmap(url: String): Bitmap? = withContext(Dispatchers.IO) {
+        try {
+            val c = URL(url).openConnection() as HttpURLConnection
+            c.connectTimeout = 15_000
+            c.readTimeout = 30_000
+            val bytes = c.inputStream.use { it.readBytes() }
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+            var sample = 1
+            while (bounds.outHeight / sample > 1400) sample *= 2
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
+        } catch (e: Exception) {
+            null
         }
     }
 }

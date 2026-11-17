@@ -25,13 +25,16 @@ jobs:
 
       - name: Compiler l'APK
         run: |
-          gradle :app:assembleDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
-          cp app/build/outputs/apk/debug/app-debug.apk al-dokkan.apk
+          gradle :app:assembleMobileDebug :app:assembleTvDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
+          cp app/build/outputs/apk/mobile/debug/app-mobile-debug.apk al-dokkan.apk
+          cp app/build/outputs/apk/tv/debug/app-tv-debug.apk al-dokkan-tv.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: al-dokkan-apk
-          path: al-dokkan.apk
+          path: |
+            al-dokkan.apk
+            al-dokkan-tv.apk
 
       - name: Publier la version
         if: github.ref == 'refs/heads/main'
@@ -40,4 +43,6 @@ jobs:
           tag_name: v1.0.${{ github.run_number }}
           name: Al Dokkan 1.0.${{ github.run_number }}
           prerelease: true
-          files: al-dokkan.apk
+          files: |
+            al-dokkan.apk
+            al-dokkan-tv.apk
