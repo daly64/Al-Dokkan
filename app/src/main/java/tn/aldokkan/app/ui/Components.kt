@@ -1,7 +1,6 @@
 package tn.aldokkan.app.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,9 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -70,28 +65,12 @@ fun PathIcon(
     }
 }
 
-/** L'icône réelle de l'app (fond + premier plan comme sur l'écran d'accueil), sinon un pictogramme. */
 @Composable
 fun AppIcon(app: AppEntry, size: Dp) {
-    val shape = RoundedCornerShape(size * 0.23f)
-    when {
-        app.id.startsWith("aldokkan") -> Box(Modifier.size(size).clip(shape)) { Logo(size) }
-        app.iconImg != null -> Image(
-            painterResource(app.iconImg), app.name,
-            Modifier.size(size).clip(shape), contentScale = ContentScale.Crop,
-        )
-        app.iconBg != null && app.iconFg != null -> Box(Modifier.size(size).clip(shape)) {
-            Image(painterResource(app.iconBg), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            // Le premier plan d'une icône adaptative est dessiné sur 108 dp mais seuls 72 dp se voient.
-            Image(
-                painterResource(app.iconFg), app.name,
-                Modifier.fillMaxSize().graphicsLayer(scaleX = 1.5f, scaleY = 1.5f),
-            )
-        }
-        else -> Box(Modifier.size(size).clip(shape).background(app.bg), contentAlignment = Alignment.Center) {
-            PathIcon(app.glyph, app.fg, size)
-        }
-    }
+    Box(
+        Modifier.size(size).clip(RoundedCornerShape(size * 0.23f)).background(app.bg),
+        contentAlignment = Alignment.Center,
+    ) { PathIcon(app.glyph, app.fg, size) }
 }
 
 /** Le logo d'Al Dokkan : une échoppe avec auvent rayé et porte en arche. */

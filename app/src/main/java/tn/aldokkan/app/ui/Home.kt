@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import tn.aldokkan.app.AppEntry
 import tn.aldokkan.app.AppStatus
 import tn.aldokkan.app.Catalog
-import tn.aldokkan.app.Platform
 import tn.aldokkan.app.Remote
 import tn.aldokkan.app.UiState
 import tn.aldokkan.app.statusOf
@@ -64,12 +63,6 @@ fun HomeScreen(
             Text("Rechercher dans Al Dokkan", Modifier.weight(1f), color = Dk.Muted, fontSize = 16.sp)
             Box(Modifier.size(38.dp).clip(CircleShape).background(Dk.Cream), contentAlignment = Alignment.Center) {
                 PathIcon(listOf("M12 9m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0", "M4.5 20c1.2-4 4-5.5 7.5-5.5s6.3 1.5 7.5 5.5"), Dk.Esp, 22.dp, viewBox = 24f, stroke = 2f)
-            }
-        }
-
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Platform.entries.forEach { p ->
-                Chip(if (p == Platform.Mobile) "Apps mobile" else "Apps TV", Catalog.platform == p) { Catalog.platform = p; category = null }
             }
         }
 
