@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,26 +25,30 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Compiler les APK
+      # Clients (publics) : mobile et TV.
+      - name: Compiler les APK clients
         run: |
-          gradle :app:assembleAdminMobileDebug :app:assembleAdminTvDebug :app:assembleClientMobileDebug :app:assembleClientTvDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
-          # Admin : noms inchangés (les installations actuelles continuent de se mettre à jour).
-          cp app/build/outputs/apk/adminMobile/debug/app-admin-mobile-debug.apk al-dokkan.apk
-          cp app/build/outputs/apk/adminTv/debug/app-admin-tv-debug.apk al-dokkan-tv.apk
-          # Clients
+          gradle :app:assembleClientMobileDebug :app:assembleClientTvDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
           cp app/build/outputs/apk/clientMobile/debug/app-client-mobile-debug.apk al-dokkan-clients.apk
           cp app/build/outputs/apk/clientTv/debug/app-client-tv-debug.apk al-dokkan-clients-tv.apk
+
+      # Admin (mobile seulement) : contient la clé cachée, donc jamais dans la release publique.
+      - name: Compiler l'APK admin
+        if: env.ADMIN_KEY != ''
+        run: |
+          gradle :app:assembleAdminMobileDebug -PdokkanVersionCode=${{ github.run_number }} -PadminKey="$ADMIN_KEY" --no-daemon --stacktrace
+          cp app/build/outputs/apk/adminMobile/debug/app-admin-mobile-debug.apk al-dokkan-admin.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: al-dokkan-apk
           path: |
-            al-dokkan.apk
-            al-dokkan-tv.apk
             al-dokkan-clients.apk
             al-dokkan-clients-tv.apk
+            al-dokkan-admin.apk
+          if-no-files-found: ignore
 
-      - name: Publier la version
+      - name: Publier les APK clients
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
@@ -50,7 +56,15 @@ jobs:
           name: Al Dokkan 1.0.${{ github.run_number }}
           prerelease: true
           files: |
-            al-dokkan.apk
-            al-dokkan-tv.apk
             al-dokkan-clients.apk
             al-dokkan-clients-tv.apk
+
+      # Brouillon : visible seulement par toi sur GitHub, pas par le public.
+      - name: Garder l'APK admin en brouillon privé
+        if: github.ref == 'refs/heads/main' && env.ADMIN_KEY != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: admin-v1.0.${{ github.run_number }}
+          name: Admin 1.0.${{ github.run_number }}
+          draft: true
+          files: al-dokkan-admin.apk

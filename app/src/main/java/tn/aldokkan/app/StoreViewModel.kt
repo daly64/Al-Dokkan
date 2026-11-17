@@ -60,8 +60,10 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         refreshInstalled()
-        Catalog.clientIds = prefs.clientIds
-        viewModelScope.launch { loadClientIds(); refreshAll() }
+        if (!BuildConfig.IS_ADMIN) {
+            Catalog.clientIds = prefs.clientIds
+            viewModelScope.launch { loadClientIds(); refreshAll() }
+        }
         viewModelScope.launch {
             InstallEvents.flow.collect {
                 state.update { s -> s.copy(installing = s.installing - it.pkg) }
@@ -88,7 +90,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Récupère la liste des apps choisies pour les clients (le dernier choix connu est gardé hors connexion). */
     private suspend fun loadClientIds() {
-        val r = Backend.clientIds()
+        val r = Backend.clientIds(BuildConfig.IS_TV)
         r.value?.let {
             Catalog.clientIds = it
             prefs.clientIds = it
@@ -103,24 +105,6 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Admin : publie pour les clients la liste d'apps choisie. */
-    fun publishClientIds(ids: Set<String>) {
-        val key = prefs.adminKey
-        if (key.isBlank()) {
-            state.update { it.copy(message = "Entre d'abord la clé d'administration dans Réglages.") }
-            return
-        }
-        viewModelScope.launch {
-            val err = Backend.publish(ids, key)
-            if (err == null) {
-                Catalog.clientIds = ids
-                prefs.clientIds = ids
-                state.update { it.copy(message = "Liste publiée : les clients verront ${ids.size} app(s).") }
-            } else {
-                state.update { it.copy(message = err) }
-            }
-        }
-    }
 
     private fun refresh(a: AppEntry) {
         state.update { it.copy(remote = it.remote + (a.id to Remote.Loading)) }

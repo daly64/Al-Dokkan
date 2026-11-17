@@ -23,11 +23,6 @@ class Prefs(ctx: Context) {
 
     fun setStamp(pkg: String, stamp: String) = sp.edit().putString("stamp_$pkg", stamp).apply()
 
-    /** Clé d'administration (version Admin seulement) : permet de publier la liste des apps pour les clients. */
-    var adminKey: String
-        get() = sp.getString("adminKey", "") ?: ""
-        set(v) = sp.edit().putString("adminKey", v.trim()).apply()
-
     /** Dernière liste d'apps choisies pour les clients, gardée pour fonctionner sans connexion. */
     var clientIds: Set<String>?
         get() = sp.getString("clientIds", null)?.split(",")?.filter { it.isNotBlank() }?.toSet()

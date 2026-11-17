@@ -4,7 +4,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import tn.aldokkan.app.ui.DokkanRoot
 import tn.aldokkan.app.ui.DokkanTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val vm: StoreViewModel by viewModels()
     private lateinit var prefs: Prefs
 

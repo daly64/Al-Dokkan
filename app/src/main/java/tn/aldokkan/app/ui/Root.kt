@@ -39,10 +39,11 @@ import tn.aldokkan.app.Prefs
 import tn.aldokkan.app.StoreViewModel
 import tn.aldokkan.app.statusOf
 
-enum class Tab { Home, Search, Manage, Clients, Settings }
+enum class Tab { Home, Search, Manage, Settings }
 
 @Composable
 fun DokkanRoot(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> Unit) {
+    if (BuildConfig.IS_ADMIN) { AdminRoot(); return }
     // Premier lancement : bienvenue, puis splash. Ensuite : splash, puis la boutique.
     var stage by rememberSaveable { mutableStateOf(if (prefs.onboarded) "splash" else "welcome") }
     when (stage) {
@@ -84,7 +85,6 @@ private fun MainScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean)
                     Tab.Home -> HomeScreen(ui, open, onSearch = { tab = Tab.Search }, onManage = { tab = Tab.Manage }, onAction = action, onCancel = cancel)
                     Tab.Search -> SearchScreen(ui, open, action, cancel)
                     Tab.Manage -> ManageScreen(ui, open, action, cancel, onUpdateAll = { vm.updateAll() })
-                    Tab.Clients -> ClientsScreen(ui, hasKey = prefs.adminKey.isNotBlank(), onPublish = { vm.publishClientIds(it) })
                     Tab.Settings -> SettingsScreen(vm, prefs, onFullscreen)
                 }
             }
@@ -126,20 +126,16 @@ private val navIcons = mapOf(
     Tab.Home to listOf("M4 11l8-7 8 7v9h-5v-6H9v6H4Z"),
     Tab.Search to listOf("M11 11m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0", "M16.5 16.5L21 21"),
     Tab.Manage to listOf("M6 4h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z", "M15 4h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z", "M6 13h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z", "M15 13h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"),
-    Tab.Clients to listOf("M9 8m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0", "M3.5 19c.8-3.2 2.8-4.5 5.5-4.5s4.7 1.3 5.5 4.5", "M16 6.2a3 3 0 0 1 0 5.6", "M17.5 14.7c1.6.5 2.6 1.8 3 4.3"),
     Tab.Settings to listOf("M4 7h10", "M18 7h2", "M4 17h2", "M10 17h10", "M16 7m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0", "M8 17m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0"),
 )
-private val navLabels = mapOf(Tab.Home to "Accueil", Tab.Search to "Rechercher", Tab.Manage to "Mes apps", Tab.Clients to "Clients", Tab.Settings to "Réglages")
-
-/** La version Clients n'a pas l'onglet d'administration. */
-private val visibleTabs get() = Tab.entries.filter { BuildConfig.IS_ADMIN || it != Tab.Clients }
+private val navLabels = mapOf(Tab.Home to "Accueil", Tab.Search to "Rechercher", Tab.Manage to "Mes apps", Tab.Settings to "Réglages")
 
 @Composable
 private fun BottomBar(current: Tab, badge: Int, onSelect: (Tab) -> Unit) {
     Column(Modifier.fillMaxWidth().background(Dk.White)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Dk.Line))
         Row(Modifier.fillMaxWidth().height(76.dp)) {
-            visibleTabs.forEach { t ->
+            Tab.entries.forEach { t ->
                 val on = t == current
                 val color = if (on) Dk.Esp else Dk.Muted
                 Column(
