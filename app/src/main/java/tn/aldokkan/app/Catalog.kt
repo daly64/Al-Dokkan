@@ -67,6 +67,27 @@ object Catalog {
             bg = Color(0xFFB8441F), fg = cream, glyph = Glyphs.store, apkHint = "al-dokkan.apk",
         ),
         AppEntry(
+            id = "alwaraqa", name = "Al Waraqa", tagline = "Lecteur PDF",
+            description = "Lis tes PDF avec des pages qui se tournent comme dans un livre.",
+            category = "Lecture", repo = "daly64/Al-Waraqa", pkg = "tn.alwaraqa.app",
+            bg = saffron, fg = esp, glyph = Glyphs.book, apkHint = "al-waraqa",
+            iconBg = R.drawable.ic_app_alwaraqa_bg, iconFg = R.drawable.ic_app_alwaraqa_fg,
+        ),
+        AppEntry(
+            id = "mizan", name = "Mizan", tagline = "Suivi de dépenses",
+            description = "Suis tes dépenses personnelles, avec bilan par jour et par mois.",
+            category = "Perso", repo = "daly64/Mizan", pkg = "tn.mizan.app",
+            bg = esp2, fg = cream, glyph = Glyphs.scale, apkHint = "al-mizan",
+            iconBg = R.drawable.ic_app_mizan_bg, iconFg = R.drawable.ic_app_mizan_fg,
+        ),
+        AppEntry(
+            id = "costo", name = "Costo", tagline = "Coût de revient",
+            description = "Calcule le coût de revient des boissons : ingrédients, recettes par portion, pertes, marge visée et prix conseillé.",
+            category = "Gestion", repo = "daly64/Costo", pkg = "tn.costo",
+            bg = Color(0xFF9CC8A4), fg = esp, glyph = Glyphs.calc,
+            iconBg = R.drawable.ic_app_costo_bg, iconFg = R.drawable.ic_app_costo_fg,
+        ),
+        AppEntry(
             id = "fichiers", name = "Gestion de fichiers", tagline = "Fichiers du téléphone",
             description = "Parcours, range et gère les fichiers de ton téléphone.",
             category = "Perso", repo = "daly64/gestion-fichiers", pkg = "io.github.daly64.gestionfichiers",
