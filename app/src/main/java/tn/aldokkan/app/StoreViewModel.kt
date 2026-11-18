@@ -142,7 +142,11 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
             state.update { it.copy(message = "Connecte-toi en Wi-Fi, ou désactive « Wi-Fi uniquement » dans Réglages.") }
             return null
         }
-        val release = (state.value.remote[app.id] as? Remote.Ok)?.release ?: return null
+        val release = (state.value.remote[app.id] as? Remote.Ok)?.release
+        if (release == null) {
+            state.update { it.copy(message = "Cette app n'a pas encore de version à installer. Réessaie dans un instant.") }
+            return null
+        }
         jobs[app.id]?.let { if (it.isActive) return it }
         val job = viewModelScope.launch {
             try {

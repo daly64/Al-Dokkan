@@ -35,7 +35,11 @@ object Installer {
 
     fun uninstall(ctx: Context, pkg: String) {
         val i = Intent(Intent.ACTION_DELETE, Uri.parse("package:$pkg")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        ctx.startActivity(i)
+        try {
+            ctx.startActivity(i)
+        } catch (e: Exception) {
+            Toast.makeText(ctx, "Désinstallation impossible : ${e.message ?: "erreur"}", Toast.LENGTH_LONG).show()
+        }
     }
 
     /** Installe (ou met à jour par-dessus) l'APK : Android garde les données si la signature est la même. */
