@@ -122,23 +122,23 @@ fun Logo(size: Dp, tile: Color = Dk.Terra, stripe1: Color = Dk.Saffron, stripe2:
 
 @Composable
 fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, height: Dp = 48.dp) {
-    val bg = if (enabled) Dk.Terra else Dk.Line
-    val fg = if (enabled) Dk.White else Dk.Muted
+    val bg = if (enabled) Dk.Action else Dk.Fill
+    val fg = if (enabled) Dk.White else Dk.Grey
     Box(
         modifier.height(height).clip(RoundedCornerShape(50)).background(bg)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = 22.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, color = fg, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1) }
+    ) { Text(text, color = fg, fontWeight = FontWeight.Medium, fontSize = 15.sp, maxLines = 1) }
 }
 
 @Composable
 fun OutlineButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, height: Dp = 48.dp) {
     Box(
-        modifier.height(height).clip(RoundedCornerShape(50)).border(2.dp, Dk.Terra, RoundedCornerShape(50))
+        modifier.height(height).clip(RoundedCornerShape(50)).border(1.dp, Dk.Stroke, RoundedCornerShape(50))
             .clickable(onClick = onClick).padding(horizontal = 22.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, color = Dk.Terra, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1) }
+    ) { Text(text, color = Dk.Action, fontWeight = FontWeight.Medium, fontSize = 15.sp, maxLines = 1) }
 }
 
 /** Le bouton d'action d'une app selon son état : Installer, Mettre à jour, Ouvrir… */

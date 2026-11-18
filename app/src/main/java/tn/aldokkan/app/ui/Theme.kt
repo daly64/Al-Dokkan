@@ -20,13 +20,20 @@ object Dk {
     val GreenBg = Color(0xFFE4F2E8)
     val GreenTx = Color(0xFF1E5A3A)
     val White = Color(0xFFFFFFFF)
+    // Style Google Play : vert d'action, gris doux, texte sombre.
+    val Action = Color(0xFF01875F)
+    val ActionBg = Color(0xFFE6F4EA)
+    val Fill = Color(0xFFF1F3F4)
+    val Stroke = Color(0xFFDADCE0)
+    val Ink = Color(0xFF1F1F1F)
+    val Grey = Color(0xFF5F6368)
 }
 
 @Composable
 fun DokkanTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary = Dk.Terra,
+            primary = Dk.Action,
             onPrimary = Dk.White,
             secondary = Dk.Saffron,
             background = Dk.White,

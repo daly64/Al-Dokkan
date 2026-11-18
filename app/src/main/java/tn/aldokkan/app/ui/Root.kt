@@ -133,18 +133,18 @@ private val navLabels = mapOf(Tab.Home to "Accueil", Tab.Search to "Rechercher",
 @Composable
 private fun BottomBar(current: Tab, badge: Int, onSelect: (Tab) -> Unit) {
     Column(Modifier.fillMaxWidth().background(Dk.White)) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(Dk.Line))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(Dk.Stroke))
         Row(Modifier.fillMaxWidth().height(76.dp)) {
             listOf(Tab.Home, Tab.Settings).forEach { t ->
                 val on = t == current
-                val color = if (on) Dk.Esp else Dk.Muted
+                val color = if (on) Dk.Action else Dk.Grey
                 Column(
                     Modifier.weight(1f).fillMaxSize().clickable { onSelect(t) },
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Box(
-                        Modifier.width(56.dp).height(30.dp).clip(RoundedCornerShape(15.dp)).background(if (on) Dk.Pill else androidx.compose.ui.graphics.Color.Transparent),
+                        Modifier.width(56.dp).height(30.dp).clip(RoundedCornerShape(15.dp)).background(if (on) Dk.ActionBg else androidx.compose.ui.graphics.Color.Transparent),
                         contentAlignment = Alignment.Center,
                     ) {
                         PathIcon(navIcons.getValue(t), color, 22.dp, viewBox = 24f, stroke = 2f)

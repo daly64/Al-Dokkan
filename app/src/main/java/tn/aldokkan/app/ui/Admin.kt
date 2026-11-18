@@ -13,7 +13,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,13 +92,19 @@ fun AdminRoot() {
     if (unlocked) {
         AdminScreen()
     } else {
-        Column(Modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
-            Logo(72.dp)
-            Text("Al Dokkan Admin", fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, color = Dk.Esp)
-            if (failed) {
-                Text("Déverrouillage annulé", fontSize = 15.sp, color = Dk.Muted)
-                PrimaryButton("Réessayer", { failed = false; ask() })
+        Column(Modifier.fillMaxSize().padding(40.dp), verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
+            Logo(96.dp, tile = Dk.Esp)
+            Text("Al Dokkan Admin", fontWeight = FontWeight.Medium, fontSize = 24.sp, color = Dk.Ink)
+            Box(
+                Modifier.padding(top = 28.dp).size(88.dp).clip(CircleShape).background(Dk.ActionBg).clickable { failed = false; ask() },
+                contentAlignment = Alignment.Center,
+            ) {
+                PathIcon(
+                    listOf("M12 11a3 3 0 0 0-3 3c0 2 .5 3.5 1.5 5", "M12 7a7 7 0 0 0-7 7c0 1.5.3 3 1 4.5", "M12 7a7 7 0 0 1 7 7c0 2-.4 3.5-1.2 5", "M15 14c0 2.5-.7 4.5-2 6"),
+                    Dk.Action, 48.dp, viewBox = 24f, stroke = 1.8f,
+                )
             }
+            Text(if (failed) "Touche l'icône pour réessayer" else "Empreinte pour entrer", fontSize = 15.sp, color = Dk.Grey)
         }
     }
 }
@@ -159,91 +171,80 @@ private fun AdminScreen() {
     val m = mobile
     val t = tv
     val all = Catalog.choosable
-    val allIds = all.map { it.id }.toSet()
+    var tab by rememberSaveable { mutableStateOf(0) }
 
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Apps des clients", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, color = Dk.Esp)
-            Text(status, fontSize = 14.sp, color = if (status.startsWith("Publié") || status.startsWith("Tout") || status.startsWith("Cet appareil est")) Dk.GreenTx else if (readOnly) Dk.Terra else Dk.Muted)
-
-            if (m != null && t != null) {
-                val nm = m.count { it in allIds }
-                val nt = t.count { it in allIds }
-                val orphans = all.count { (it.id in m || it.id in t) && remote[it.id] is Remote.NoRelease }
-                Text("Mobile : $nm app(s) · TV : $nt app(s)", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Dk.Esp)
-                if (orphans > 0) Text("$orphans app(s) cochée(s) sans version publiée : les clients ne les verront pas.", fontSize = 13.sp, color = Dk.Terra)
-
-                OutlinedTextField(
-                    value = query, onValueChange = { query = it },
-                    placeholder = { Text("Rechercher une app") }, singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(26.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Dk.Terra, cursorColor = Dk.Terra),
-                )
-
-                if (!readOnly) {
-                    val allM = allIds.all { it in m }
-                    val allT = allIds.all { it in t }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Chip(if (allM) "Aucune sur mobile" else "Tout sur mobile", false) { change(if (allM) m - allIds else m + allIds, t) }
-                        Chip(if (allT) "Aucune sur TV" else "Tout sur TV", false) { change(m, if (allT) t - allIds else t + allIds) }
-                    }
-                }
-
-                Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.End) {
-                    Text("Mobile", Modifier.width(76.dp), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Dk.Terra, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                    Text("TV", Modifier.width(76.dp), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Dk.Terra, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                }
-                val shown = all.filter { query.isBlank() || it.name.contains(query.trim(), ignoreCase = true) }
-                if (shown.isEmpty()) Text("Aucune app ne correspond.", fontSize = 14.sp, color = Dk.Muted)
-                shown.forEach { a ->
-                    val r = remote[a.id]
-                    val line = when (r) {
-                        is Remote.Ok -> "Version ${r.release.tag.removePrefix("v")} publiée"
-                        is Remote.NoRelease -> "Pas encore de version"
-                        is Remote.Failed -> "Version inconnue"
-                        else -> "Vérification…"
-                    }
-                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        AppIcon(a, 44.dp)
-                        Column(Modifier.weight(1f)) {
-                            Text(a.name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Dk.Esp)
-                            Text(line, fontSize = 13.sp, color = if (r is Remote.NoRelease) Dk.Terra else Dk.Muted, maxLines = 1)
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, top = 28.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Vitrine des clients", fontWeight = FontWeight.Medium, fontSize = 24.sp, color = Dk.Ink)
+            Text(
+                if (readOnly) status else "Touche une app pour l'afficher ou la masquer",
+                fontSize = 14.sp, color = if (readOnly) Dk.Terra else Dk.Grey,
+            )
+        }
+        Row(
+            Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp).fillMaxWidth().height(44.dp).clip(RoundedCornerShape(22.dp)).background(Dk.Fill).padding(4.dp),
+        ) {
+            listOf("Mobile", "TV").forEachIndexed { i, label ->
+                val on = tab == i
+                Box(
+                    Modifier.weight(1f).fillMaxSize().clip(RoundedCornerShape(18.dp)).background(if (on) Dk.White else Color.Transparent).clickable { tab = i },
+                    contentAlignment = Alignment.Center,
+                ) { Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = if (on) Dk.Action else Dk.Grey) }
+            }
+        }
+        if (m != null && t != null) {
+            val cur = if (tab == 0) m else t
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                all.chunked(3).forEach { rowApps ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        rowApps.forEach { a ->
+                            val on = a.id in cur
+                            val noRelease = remote[a.id] is Remote.NoRelease
+                            Column(
+                                Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                                    .then(if (readOnly) Modifier else Modifier.clickable {
+                                        val next = if (on) cur - a.id else cur + a.id
+                                        if (tab == 0) change(next, t) else change(m, next)
+                                    }),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Box(Modifier.padding(6.dp)) {
+                                    Box(
+                                        Modifier.clip(RoundedCornerShape(22.dp))
+                                            .then(if (on) Modifier.border(3.dp, Dk.Action, RoundedCornerShape(22.dp)) else Modifier.alpha(0.4f))
+                                            .padding(if (on) 3.dp else 0.dp),
+                                    ) { AppIcon(a, 78.dp) }
+                                    if (on) Box(
+                                        Modifier.align(Alignment.TopEnd).size(26.dp).clip(CircleShape).background(Dk.Action).border(2.dp, Dk.White, CircleShape),
+                                        contentAlignment = Alignment.Center,
+                                    ) { PathIcon(listOf("M5 12.5l4.5 4.5L19 7.5"), Dk.White, 14.dp, viewBox = 24f, stroke = 3.5f) }
+                                }
+                                Text(a.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Dk.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                if (noRelease) Text("Pas de version", fontSize = 11.sp, color = Dk.Terra)
+                            }
                         }
-                        Box2(a.id in m, !readOnly) { on -> change(if (on) m + a.id else m - a.id, t) }
-                        Box2(a.id in t, !readOnly) { on -> change(m, if (on) t + a.id else t - a.id) }
+                        repeat(3 - rowApps.size) { Spacer(Modifier.weight(1f)) }
                     }
-                    HorizontalDivider(color = Dk.Line)
                 }
             }
+        } else {
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { Text(status, fontSize = 15.sp, color = Dk.Grey) }
         }
 
         // Rattrape une fausse manip : la barre disparaît toute seule après quelques secondes.
         val u = undo
         if (u != null) {
             Row(
-                Modifier.fillMaxWidth().padding(12.dp).clip(RoundedCornerShape(16.dp)).background(Dk.Esp).padding(horizontal = 16.dp, vertical = 12.dp),
+                Modifier.fillMaxWidth().padding(16.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFF313033)).padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Modification publiée", Modifier.weight(1f), color = Dk.White, fontSize = 15.sp)
+                Text(status.ifBlank { "Modification publiée" }, Modifier.weight(1f), color = Dk.White, fontSize = 14.sp)
                 Text(
-                    "ANNULER", color = Dk.Saffron, fontWeight = FontWeight.Bold, fontSize = 14.sp,
-                    modifier = Modifier.clickable { undo = null; apply(u.first, u.second) }.padding(8.dp),
+                    "Annuler", color = Color(0xFF8AB4F8), fontWeight = FontWeight.Medium, fontSize = 14.sp,
+                    modifier = Modifier.clickable { undo = null; apply(u.first, u.second) }.padding(12.dp),
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun Box2(checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.width(76.dp), horizontalArrangement = Arrangement.Center) {
-        Switch(
-            checked = checked, onCheckedChange = onChange, enabled = enabled,
-            colors = SwitchDefaults.colors(
-                checkedTrackColor = Dk.Sage, checkedThumbColor = Dk.White, checkedBorderColor = Dk.Sage,
-                uncheckedTrackColor = Color(0xFFCDBA9E), uncheckedThumbColor = Dk.White, uncheckedBorderColor = Color(0xFFCDBA9E),
-            ),
-        )
     }
 }

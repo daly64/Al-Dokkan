@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -22,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,7 +40,7 @@ fun emptyMessage(ui: UiState): Pair<String, String> {
     else "Aucune appli pour le moment" to "Réessaie un peu plus tard."
 }
 
-/** Accueil de la version Clients : une grille d'apps, un gros bouton sur chacune, et « Tout mettre à jour » bien visible. */
+/** Accueil de la version Clients, façon Google Play : une liste simple, un bouton par app, « Tout mettre à jour » seulement s'il y a des mises à jour. */
 @Composable
 fun ClientHome(
     ui: UiState,
@@ -54,59 +53,54 @@ fun ClientHome(
     val apps = Catalog.apps
     val updates = apps.count { statusOf(it, ui) == AppStatus.Update }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Logo(40.dp)
-                Text("Al Dokkan", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Dk.Esp)
+        item {
+            Row(Modifier.padding(top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Logo(44.dp)
+                Text("Al Dokkan", fontSize = 24.sp, fontWeight = FontWeight.Medium, color = Dk.Ink)
             }
         }
         if (updates > 0) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Column(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Dk.Terra).padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+            item {
+                Row(
+                    Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(16.dp)).background(Dk.ActionBg).padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        if (updates == 1) "1 mise à jour disponible" else "$updates mises à jour disponibles",
-                        color = Dk.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold,
+                        if (updates == 1) "1 mise à jour" else "$updates mises à jour",
+                        Modifier.weight(1f), color = Color(0xFF0B5E43), fontSize = 15.sp, fontWeight = FontWeight.Medium,
                     )
-                    Box(
-                        Modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(25.dp)).background(Dk.Saffron).clickable(onClick = onUpdateAll),
-                        contentAlignment = Alignment.Center,
-                    ) { Text("Tout mettre à jour", color = Dk.Esp, fontWeight = FontWeight.Bold, fontSize = 17.sp) }
+                    PrimaryButton("Tout mettre à jour", onUpdateAll, height = 36.dp)
                 }
             }
         }
         if (apps.isEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item {
                 val (title, sub) = emptyMessage(ui)
-                Column(Modifier.fillMaxWidth().padding(vertical = 56.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(title, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Esp, textAlign = TextAlign.Center)
-                    Text(sub, fontSize = 16.sp, color = Dk.Muted, textAlign = TextAlign.Center)
+                Column(Modifier.fillMaxWidth().padding(vertical = 72.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(title, fontSize = 22.sp, fontWeight = FontWeight.Medium, color = Dk.Ink, textAlign = TextAlign.Center)
+                    Text(sub, fontSize = 15.sp, color = Dk.Grey, textAlign = TextAlign.Center)
                     PrimaryButton("Réessayer", onRetry, Modifier.padding(top = 8.dp))
                 }
             }
         }
-        items(apps, key = { it.id }) { a -> ClientCard(a, ui, onOpen, onAction, onCancel) }
+        items(apps, key = { it.id }) { a -> ClientRow(a, ui, onOpen, onAction, onCancel) }
     }
 }
 
 @Composable
-private fun ClientCard(a: AppEntry, ui: UiState, onOpen: (AppEntry) -> Unit, onAction: (AppEntry) -> Unit, onCancel: (AppEntry) -> Unit) {
+private fun ClientRow(a: AppEntry, ui: UiState, onOpen: (AppEntry) -> Unit, onAction: (AppEntry) -> Unit, onCancel: (AppEntry) -> Unit) {
     val status = statusOf(a, ui)
     val progress = ui.progress[a.pkg]
     val busy = a.pkg in ui.installing
     val version = ui.installed[a.pkg]?.versionName
     val label = when {
         progress != null -> "Annuler"
-        busy -> "Installation…"
+        busy -> "En cours…"
         status == AppStatus.Install -> "Installer"
         status == AppStatus.Update -> "Mettre à jour"
         status == AppStatus.Open -> "Ouvrir"
@@ -114,28 +108,24 @@ private fun ClientCard(a: AppEntry, ui: UiState, onOpen: (AppEntry) -> Unit, onA
         status == AppStatus.NotPublished -> "Bientôt"
         else -> "Réessayer"
     }
-    Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, Dk.Line, RoundedCornerShape(22.dp))
-            .clickable { onOpen(a) }.padding(14.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        AppIcon(a, 72.dp)
-        Text(a.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Dk.Esp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(statusLine(a, status, version), fontSize = 13.sp, color = Dk.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    val enabled = !busy && status != AppStatus.Checking && status != AppStatus.NotPublished
+    val click = { if (progress != null) onCancel(a) else onAction(a) }
+    Column(Modifier.fillMaxWidth().clickable { onOpen(a) }.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            AppIcon(a, 56.dp)
+            Column(Modifier.weight(1f)) {
+                Text(a.name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Dk.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(statusLine(a, status, version), fontSize = 13.sp, color = Dk.Grey, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (status == AppStatus.Open && progress == null) OutlineButton(label, click, height = 36.dp)
+            else PrimaryButton(label, click, enabled = enabled || progress != null, height = 36.dp)
+        }
         if (progress != null) {
             LinearProgressIndicator(
                 progress = { progress.fraction },
-                modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                color = Dk.Saffron, trackColor = Dk.Line,
+                modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
+                color = Dk.Action, trackColor = Dk.Stroke,
             )
         }
-        PrimaryButton(
-            label,
-            { if (progress != null) onCancel(a) else onAction(a) },
-            Modifier.fillMaxWidth(),
-            enabled = !busy && status != AppStatus.Checking && status != AppStatus.NotPublished,
-            height = 46.dp,
-        )
     }
 }

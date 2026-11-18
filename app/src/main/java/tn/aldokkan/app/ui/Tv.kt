@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -66,8 +67,8 @@ private fun Focusable(
         modifier
             .then(if (requester != null) Modifier.focusRequester(requester) else Modifier)
             .clip(shape)
-            .background(if (focused) Dk.Cream else Dk.White)
-            .border(if (focused) 6.dp else 1.dp, if (focused) Dk.Terra else Dk.Line, shape)
+            .background(if (focused) Dk.White else Dk.Fill)
+            .border(if (focused) 6.dp else 0.dp, if (focused) Dk.Action else Color.Transparent, shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable(onClick = onClick),
     ) { content() }
@@ -92,7 +93,7 @@ fun TvWelcome(onDone: () -> Unit) {
             Spacer(Modifier.height(12.dp))
             Focusable(Modifier.width(280.dp).height(64.dp), 32, focus, onClick = onDone) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Commencer", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Terra)
+                    Text("Commencer", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Action)
                 }
             }
         }
@@ -119,7 +120,7 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
             if (updates > 0) {
                 Focusable(Modifier.height(56.dp), 28, onClick = { vm.updateAll() }) {
                     Box(Modifier.padding(horizontal = 26.dp).height(56.dp), contentAlignment = Alignment.Center) {
-                        Text("Tout mettre à jour ($updates)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Dk.Terra)
+                        Text("Tout mettre à jour ($updates)", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Dk.Action)
                     }
                 }
             }
@@ -132,7 +133,7 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
                 Text(sub, fontSize = 22.sp, color = Dk.Muted)
                 Focusable(Modifier.width(280.dp).height(64.dp), 32, first, onClick = { vm.reloadClientIds() }) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Réessayer", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Terra)
+                        Text("Réessayer", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Action)
                     }
                 }
             }
@@ -192,17 +193,17 @@ private fun TvCard(app: AppEntry, ui: tn.aldokkan.app.UiState, status: AppStatus
                 LinearProgressIndicator(
                     progress = { progress.fraction },
                     modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                    color = Dk.Saffron, trackColor = Dk.Line,
+                    color = Dk.Action, trackColor = Dk.Stroke,
                 )
             } else if (remote is Remote.Failed) {
                 Text(remote.message, fontSize = 14.sp, color = Dk.Terra, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Box(
                 Modifier.fillMaxWidth().height(58.dp).clip(RoundedCornerShape(29.dp))
-                    .background(if (status == AppStatus.Open) Dk.Sand else Dk.Terra),
+                    .background(if (status == AppStatus.Open) Dk.White else Dk.Action),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = if (status == AppStatus.Open) Dk.Esp else Dk.White)
+                Text(label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = if (status == AppStatus.Open) Dk.Action else Dk.White)
             }
         }
     }
