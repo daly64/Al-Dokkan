@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -96,26 +97,39 @@ fun AppIcon(app: AppEntry, size: Dp) {
 
 /** Le logo d'Al Dokkan : une échoppe avec auvent rayé et porte en arche. */
 @Composable
-fun Logo(size: Dp, tile: Color = Dk.Terra, stripe1: Color = Dk.Saffron, stripe2: Color = Dk.Cream, arch: Color = Dk.Esp, base: Color = Dk.Cream) {
+fun Logo(size: Dp, admin: Boolean = tn.aldokkan.app.BuildConfig.IS_ADMIN) {
+    // Même dessin que l'icône du lanceur (repère 108), recadré sur la partie visible.
+    val tile = if (admin) Dk.Esp else Dk.Terra
+    val door = if (admin) Dk.Terra else Dk.Esp
+    val bar = if (admin) Dk.Saffron else Dk.Esp
     Canvas(Modifier.size(size)) {
-        val s = this.size.minDimension / 96f
+        val s = this.size.minDimension / 78f
+        drawRoundRect(tile, size = this.size, cornerRadius = CornerRadius(this.size.minDimension * 0.23f))
         scale(s, s, pivot = Offset.Zero) {
-            drawRoundRect(tile, size = Size(96f, 96f), cornerRadius = CornerRadius(22f, 22f))
-            drawRect(stripe1, Offset(18f, 26f), Size(20f, 10f))
-            drawRect(stripe2, Offset(38f, 26f), Size(20f, 10f))
-            drawRect(stripe1, Offset(58f, 26f), Size(20f, 10f))
-            drawCircle(stripe1, 10f, Offset(28f, 36f))
-            drawCircle(stripe2, 10f, Offset(48f, 36f))
-            drawCircle(stripe1, 10f, Offset(68f, 36f))
-            val door = Path().apply {
-                moveTo(38f, 74f)
-                lineTo(38f, 60f)
-                arcTo(Rect(38f, 50f, 58f, 70f), 180f, 180f, false)
-                lineTo(58f, 74f)
-                close()
+            translate(-15f, -15f) {
+                drawRect(Dk.Sand, Offset(30f, 38f), Size(48f, 42f))
+                drawRoundRect(Dk.Esp.copy(alpha = 0.85f), Offset(34f, 50f), Size(9f, 10f), CornerRadius(1.5f))
+                drawRoundRect(Dk.Esp.copy(alpha = 0.85f), Offset(65f, 50f), Size(9f, 10f), CornerRadius(1.5f))
+                val d = Path().apply {
+                    moveTo(46f, 80f); lineTo(46f, 64f)
+                    arcTo(Rect(46f, 56f, 62f, 72f), 180f, 180f, false)
+                    lineTo(62f, 80f); close()
+                }
+                drawPath(d, door)
+                drawRoundRect(bar, Offset(24f, 80f), Size(60f, 4f), CornerRadius(2f))
+                listOf(Dk.Saffron, Dk.Cream, Dk.Saffron, Dk.Cream).forEachIndexed { i, c ->
+                    val x = 26f + 14f * i
+                    drawRect(c, Offset(x, 26f), Size(14f, 12f))
+                    drawArc(c, 0f, 180f, true, Offset(x, 31f), Size(14f, 14f))
+                }
+                drawRoundRect(bar, Offset(24f, 23f), Size(60f, 4f), CornerRadius(2f))
+                if (admin) {
+                    drawCircle(Dk.Esp, 14f, Offset(77f, 75f))
+                    drawCircle(Color(0xFF2F8F5B), 11f, Offset(77f, 75f))
+                    val ck = Path().apply { moveTo(71.5f, 75f); lineTo(75.3f, 78.8f); lineTo(82.5f, 71.6f) }
+                    drawPath(ck, Dk.White, style = androidx.compose.ui.graphics.drawscope.Stroke(3.2f, cap = androidx.compose.ui.graphics.StrokeCap.Round, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+                }
             }
-            drawPath(door, arch)
-            drawRoundRect(base, Offset(30f, 74f), Size(36f, 4f), CornerRadius(2f, 2f))
         }
     }
 }
