@@ -106,6 +106,12 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
     val ui by vm.state.collectAsState()
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(20_000)
+            vm.reloadClientIds()
+        }
+    }
 
     val apps = Catalog.apps
     val updates = apps.count { statusOf(it, ui) == AppStatus.Update }

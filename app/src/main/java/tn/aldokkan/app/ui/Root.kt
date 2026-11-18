@@ -18,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +75,13 @@ private fun MainScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean)
         }
     }
     val cancel: (AppEntry) -> Unit = { vm.cancel(it) }
+    // Tant que l'écran est ouvert, on reprend le choix de l'admin toutes les 20 secondes.
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(20_000)
+            vm.reloadClientIds()
+        }
+    }
     val updateCount = Catalog.apps.count { statusOf(it, ui) == AppStatus.Update }
 
     Column(Modifier.fillMaxSize().background(Dk.White)) {

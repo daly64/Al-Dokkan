@@ -83,7 +83,7 @@ object Backend {
                 c.outputStream.use { it.write(body.toByteArray()) }
                 when (val code = c.responseCode) {
                     200 -> null
-                    401 -> "Refusé : cet appareil l'heure du téléphone est peut-être fausse. Rouvre l'app"
+                    401 -> "Refusé : rouvre l'app (ou vérifie l'heure du téléphone)"
                     else -> "Erreur du serveur ($code)"
                 }
             } catch (e: Exception) {

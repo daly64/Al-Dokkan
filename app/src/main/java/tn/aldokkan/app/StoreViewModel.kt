@@ -101,7 +101,11 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     fun reloadClientIds() {
         viewModelScope.launch {
             loadClientIds()
-            for (a in Catalog.offeredAll) if (state.value.remote[a.id] == null) refresh(a)
+            // Nouvelles apps, ou apps dont la vérification a échoué la dernière fois : on réessaie.
+            for (a in Catalog.offeredAll) {
+                val r = state.value.remote[a.id]
+                if (r == null || r is Remote.Failed || r is Remote.NoRelease) refresh(a)
+            }
         }
     }
 
