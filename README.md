@@ -15,4 +15,4 @@ Ajouter une app à la boutique : une ligne dans `Catalog.kt` (dépôt GitHub + i
 
 - **Clients mobile** et **Clients TV** (`al-dokkan-clients.apk`, `al-dokkan-clients-tv.apk`) : publics, ils affichent seulement les apps choisies dans l'admin.
 - **Admin mobile** : un seul écran, ouvert par empreinte ; pour chaque app, deux interrupteurs (mobile / TV), publiés tout de suite sur le serveur (`server/`, Vercel + Neon).
-  La clé d'administration est cachée dans l'APK admin, injectée à la compilation par le secret GitHub `ADMIN_KEY` ; l'APK admin reste en brouillon privé, jamais dans la release publique.
+  Aucune clé dans l'APK : au premier lancement, l'appareil enregistre sur le serveur sa propre clé (Keystore, non exportable) ; ensuite chaque publication est signée et horodatée. L'APK admin reste en brouillon privé.

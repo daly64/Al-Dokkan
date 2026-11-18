@@ -82,7 +82,7 @@ private fun MainScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean)
                 DetailScreen(selected, ui, onBack = { selectedId = null }, onAction = action, onCancel = cancel, onRetry = { vm.refreshAll() })
             } else {
                 when (tab) {
-                    Tab.Home -> HomeScreen(ui, open, onSearch = { tab = Tab.Search }, onManage = { tab = Tab.Manage }, onAction = action, onCancel = cancel)
+                    Tab.Home -> ClientHome(ui, open, action, cancel, onUpdateAll = { vm.updateAll() }, onRetry = { vm.reloadClientIds() })
                     Tab.Search -> SearchScreen(ui, open, action, cancel)
                     Tab.Manage -> ManageScreen(ui, open, action, cancel, onUpdateAll = { vm.updateAll() })
                     Tab.Settings -> SettingsScreen(vm, prefs, onFullscreen)
@@ -135,7 +135,7 @@ private fun BottomBar(current: Tab, badge: Int, onSelect: (Tab) -> Unit) {
     Column(Modifier.fillMaxWidth().background(Dk.White)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Dk.Line))
         Row(Modifier.fillMaxWidth().height(76.dp)) {
-            Tab.entries.forEach { t ->
+            listOf(Tab.Home, Tab.Settings).forEach { t ->
                 val on = t == current
                 val color = if (on) Dk.Esp else Dk.Muted
                 Column(
@@ -148,7 +148,7 @@ private fun BottomBar(current: Tab, badge: Int, onSelect: (Tab) -> Unit) {
                         contentAlignment = Alignment.Center,
                     ) {
                         PathIcon(navIcons.getValue(t), color, 22.dp, viewBox = 24f, stroke = 2f)
-                        if (t == Tab.Manage && badge > 0) {
+                        if (t == Tab.Home && badge > 0) {
                             Box(
                                 Modifier.align(Alignment.TopEnd).size(18.dp).clip(CircleShape).background(Dk.Terra),
                                 contentAlignment = Alignment.Center,

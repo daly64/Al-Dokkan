@@ -11,8 +11,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,11 +30,10 @@ jobs:
           cp app/build/outputs/apk/clientMobile/debug/app-client-mobile-debug.apk al-dokkan-clients.apk
           cp app/build/outputs/apk/clientTv/debug/app-client-tv-debug.apk al-dokkan-clients-tv.apk
 
-      # Admin (mobile seulement) : contient la clé cachée, donc jamais dans la release publique.
+      # Admin (mobile seulement) : plus de clé cachée ; l'appareil admin s'enregistre avec sa propre clé.
       - name: Compiler l'APK admin
-        if: env.ADMIN_KEY != ''
         run: |
-          gradle :app:assembleAdminMobileDebug -PdokkanVersionCode=${{ github.run_number }} -PadminKey="$ADMIN_KEY" --no-daemon --stacktrace
+          gradle :app:assembleAdminMobileDebug -PdokkanVersionCode=${{ github.run_number }} --no-daemon --stacktrace
           cp app/build/outputs/apk/adminMobile/debug/app-admin-mobile-debug.apk al-dokkan-admin.apk
 
       - uses: actions/upload-artifact@v4
@@ -59,9 +56,9 @@ jobs:
             al-dokkan-clients.apk
             al-dokkan-clients-tv.apk
 
-      # Brouillon : visible seulement par toi sur GitHub, pas par le public.
+      # Brouillon : l'APK admin reste visible seulement par toi sur GitHub.
       - name: Garder l'APK admin en brouillon privé
-        if: github.ref == 'refs/heads/main' && env.ADMIN_KEY != ''
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: admin-v1.0.${{ github.run_number }}

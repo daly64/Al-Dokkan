@@ -31,15 +31,11 @@ android {
         create("admin") {
             dimension = "role"
             buildConfigField("boolean", "IS_ADMIN", "true")
-            // Clé cachée dans l'APK admin (injectée à la compilation, jamais écrite dans le dépôt).
-            val key = (project.findProperty("adminKey") as String?) ?: ""
-            buildConfigField("String", "ADMIN_KEY", "\"$key\"")
         }
         create("client") {
             dimension = "role"
             applicationIdSuffix = ".client"
             buildConfigField("boolean", "IS_ADMIN", "false")
-            buildConfigField("String", "ADMIN_KEY", "\"\"")
         }
         create("mobile") {
             dimension = "device"
@@ -106,6 +102,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")

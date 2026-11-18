@@ -67,7 +67,7 @@ private fun Focusable(
             .then(if (requester != null) Modifier.focusRequester(requester) else Modifier)
             .clip(shape)
             .background(if (focused) Dk.Cream else Dk.White)
-            .border(if (focused) 4.dp else 1.dp, if (focused) Dk.Terra else Dk.Line, shape)
+            .border(if (focused) 6.dp else 1.dp, if (focused) Dk.Terra else Dk.Line, shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable(onClick = onClick),
     ) { content() }
@@ -125,10 +125,21 @@ fun TvStore(vm: StoreViewModel, prefs: Prefs) {
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(300.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+        if (apps.isEmpty()) {
+            val (title, sub) = emptyMessage(ui)
+            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
+                Text(title, fontSize = 36.sp, fontWeight = FontWeight.ExtraBold, color = Dk.Esp)
+                Text(sub, fontSize = 22.sp, color = Dk.Muted)
+                Focusable(Modifier.width(280.dp).height(64.dp), 32, first, onClick = { vm.reloadClientIds() }) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Réessayer", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Dk.Terra)
+                    }
+                }
+            }
+        } else LazyVerticalGrid(
+            columns = GridCells.Adaptive(400.dp),
+            horizontalArrangement = Arrangement.spacedBy(28.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
             items(apps, key = { it.id }) { app ->
@@ -168,15 +179,15 @@ private fun TvCard(app: AppEntry, ui: tn.aldokkan.app.UiState, status: AppStatus
         else -> "Réessayer"
     }
     Focusable(Modifier.fillMaxWidth(), 28, requester, onClick) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.padding(26.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                AppIcon(app, 84.dp)
+                AppIcon(app, 104.dp)
                 Column(Modifier.weight(1f)) {
-                    Text(app.name, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Dk.Esp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(statusLine(app, status, version), fontSize = 16.sp, color = Dk.Muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(app.name, fontSize = 30.sp, fontWeight = FontWeight.Bold, color = Dk.Esp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(statusLine(app, status, version), fontSize = 19.sp, color = Dk.Muted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             }
-            Text(app.description, fontSize = 15.sp, color = Dk.Esp, maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 20.sp)
+            Text(app.description, fontSize = 17.sp, color = Dk.Esp, maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 23.sp)
             if (progress != null) {
                 LinearProgressIndicator(
                     progress = { progress.fraction },
@@ -187,11 +198,11 @@ private fun TvCard(app: AppEntry, ui: tn.aldokkan.app.UiState, status: AppStatus
                 Text(remote.message, fontSize = 14.sp, color = Dk.Terra, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Box(
-                Modifier.fillMaxWidth().height(46.dp).clip(RoundedCornerShape(23.dp))
+                Modifier.fillMaxWidth().height(58.dp).clip(RoundedCornerShape(29.dp))
                     .background(if (status == AppStatus.Open) Dk.Sand else Dk.Terra),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(label, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (status == AppStatus.Open) Dk.Esp else Dk.White)
+                Text(label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = if (status == AppStatus.Open) Dk.Esp else Dk.White)
             }
         }
     }

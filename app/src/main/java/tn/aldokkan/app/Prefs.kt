@@ -27,4 +27,13 @@ class Prefs(ctx: Context) {
     var clientIds: Set<String>?
         get() = sp.getString("clientIds", null)?.split(",")?.filter { it.isNotBlank() }?.toSet()
         set(v) = sp.edit().putString("clientIds", v?.joinToString(",")).apply()
+
+    /** Nouvelles versions déjà annoncées par notification (pour ne pas prévenir deux fois). */
+    var notified: Set<String>
+        get() = sp.getStringSet("notified", emptySet()) ?: emptySet()
+        set(v) = sp.edit().putStringSet("notified", v).apply()
+
+    var askedNotifications: Boolean
+        get() = sp.getBoolean("askedNotifications", false)
+        set(v) = sp.edit().putBoolean("askedNotifications", v).apply()
 }
