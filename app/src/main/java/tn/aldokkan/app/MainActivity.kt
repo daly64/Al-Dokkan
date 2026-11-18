@@ -8,7 +8,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.ComponentActivity
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -23,7 +23,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import tn.aldokkan.app.ui.DokkanRoot
 import tn.aldokkan.app.ui.DokkanTheme
 
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
     private val vm: StoreViewModel by viewModels()
     private lateinit var prefs: Prefs
 

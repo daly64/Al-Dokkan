@@ -39,7 +39,7 @@ import tn.aldokkan.app.Prefs
 import tn.aldokkan.app.StoreViewModel
 import tn.aldokkan.app.statusOf
 
-enum class Tab { Home, Search, Manage, Settings }
+enum class Tab { Home, Settings }
 
 @Composable
 fun DokkanRoot(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean) -> Unit) {
@@ -83,8 +83,6 @@ private fun MainScreen(vm: StoreViewModel, prefs: Prefs, onFullscreen: (Boolean)
             } else {
                 when (tab) {
                     Tab.Home -> ClientHome(ui, open, action, cancel, onUpdateAll = { vm.updateAll() }, onRetry = { vm.reloadClientIds() })
-                    Tab.Search -> SearchScreen(ui, open, action, cancel)
-                    Tab.Manage -> ManageScreen(ui, open, action, cancel, onUpdateAll = { vm.updateAll() })
                     Tab.Settings -> SettingsScreen(vm, prefs, onFullscreen)
                 }
             }
@@ -124,11 +122,9 @@ fun StoreDialogs(vm: StoreViewModel, ui: tn.aldokkan.app.UiState) {
 
 private val navIcons = mapOf(
     Tab.Home to listOf("M4 11l8-7 8 7v9h-5v-6H9v6H4Z"),
-    Tab.Search to listOf("M11 11m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0", "M16.5 16.5L21 21"),
-    Tab.Manage to listOf("M6 4h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z", "M15 4h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z", "M6 13h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z", "M15 13h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"),
     Tab.Settings to listOf("M4 7h10", "M18 7h2", "M4 17h2", "M10 17h10", "M16 7m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0", "M8 17m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0"),
 )
-private val navLabels = mapOf(Tab.Home to "Accueil", Tab.Search to "Rechercher", Tab.Manage to "Mes apps", Tab.Settings to "Réglages")
+private val navLabels = mapOf(Tab.Home to "Accueil", Tab.Settings to "Réglages")
 
 @Composable
 private fun BottomBar(current: Tab, badge: Int, onSelect: (Tab) -> Unit) {

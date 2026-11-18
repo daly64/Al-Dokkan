@@ -54,7 +54,6 @@ object Backend {
             c.outputStream.use { it.write(JSONObject().put("publicKey", DeviceKey.publicKey()).toString().toByteArray()) }
             when (val code = c.responseCode) {
                 200 -> null
-                409 -> "Un autre appareil est déjà l'administrateur"
                 else -> "Erreur du serveur ($code)"
             }
         } catch (e: Exception) {
@@ -84,7 +83,7 @@ object Backend {
                 c.outputStream.use { it.write(body.toByteArray()) }
                 when (val code = c.responseCode) {
                     200 -> null
-                    401 -> "Refusé : cet appareil n'est pas l'administrateur, ou l'heure du téléphone est fausse"
+                    401 -> "Refusé : cet appareil l'heure du téléphone est peut-être fausse. Rouvre l'app"
                     else -> "Erreur du serveur ($code)"
                 }
             } catch (e: Exception) {
