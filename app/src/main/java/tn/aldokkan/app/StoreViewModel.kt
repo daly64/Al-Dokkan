@@ -156,7 +156,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
                     state.update { it.copy(progress = it.progress + (app.pkg to Progress(done, total))) }
                 }
                 state.update { it.copy(progress = it.progress - app.pkg, installing = it.installing + app.pkg) }
-                Installer.install(ctx, file, app.pkg, release.stamp)
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { Installer.install(ctx, file, app.pkg, release.stamp) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
